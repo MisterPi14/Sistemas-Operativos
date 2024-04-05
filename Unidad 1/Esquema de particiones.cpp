@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define espacioSO 20 * 1024// 1kb = 1024 bytes
 #define maxMemoria 80 * 1024
-#define ntareas 4
+#define ntareas 20
 
 void Crear_MT(void);
 void Crear_JT(void);
@@ -60,7 +60,32 @@ void Crear_MT(void)
 		else
 		{
 			printf("\nDesea crear una nueva particion? (1=si 0=no): ");
-			scanf("%d",&r); if(r==0){break;}
+			scanf("%d",&r); 
+			if(r==0)
+			{
+				Nuevo_MT = (nodo_MT *) malloc(sizeof(nodo_MT));
+
+				int espacioOcupado=0;
+				Aux_MT=P_MT;
+				while(Aux_MT!=NULL){
+					espacioOcupado+=Aux_MT->capacidad;
+					Aux_MT=Aux_MT->sig;
+				}
+				
+				Nuevo_MT -> noBloque = cont+1;
+				Nuevo_MT -> capacidad = maxMemoria-espacioOcupado;
+				Nuevo_MT -> locIncial = Q_MT->locFinal+1;
+				Nuevo_MT -> locFinal = maxMemoria;
+				Nuevo_MT -> estado = 1;
+				Nuevo_MT -> acceso = 0;
+				
+				Nuevo_MT->sig=NULL;
+				Q_MT->sig=Nuevo_MT;
+				Q_MT=Nuevo_MT;
+				cont++;
+				break;break;
+			}
+			
 			
 			Nuevo_MT = (nodo_MT *) malloc(sizeof(nodo_MT));
 			
@@ -96,13 +121,13 @@ void Crear_MT(void)
 }
 
 void Crear_JT(void){
-	int i=ntareas,cont=1;
+	int i=ntareas,cont=2;
 	do
 	{
 		if (P_JT == NULL)
 		{
 			P_JT = (nodo_JT *) malloc(sizeof(nodo_JT));
-			P_JT -> ntarea = 0;
+			P_JT -> ntarea = 1;
 			P_JT -> nespacio = 5+rand()%15;
 			P_JT -> sig = NULL;
 			Q_JT = P_JT;
@@ -125,14 +150,14 @@ void Crear_JT(void){
 
 void Imprimir_Tabla_Memoria(void){
 	Aux_MT=P_MT;
-	printf("\n\n-------------------------------------------------------------------------------\n|%-77s|\n-------------------------------------------------------------------------------","TABLA DE MEMORIA");
-	printf("\n|%-12s|%-12s|%-12s|%-12s|%-12s|%-12s|", "NoBloque","Capacidad","locInicial","locFinal","Estado","Acceso");
+	printf("\n\n--------------------------------------------------------------------------------------------\n|%-90s|\n--------------------------------------------------------------------------------------------","TABLA DE MEMORIA");
+	printf("\n|%-12s|%-12s|%-12s|%-12s|%-12s|%-12s|%-12s|", "NoBloque","Capacidad","locInicial","locFinal","Estado","Acceso","FI");
 	while(Aux_MT!=NULL){
-		printf("\n-------------------------------------------------------------------------------");
-		printf("\n|B%-11d|%-6d bytes|%-12d|%-12d|%-12d|%-12d|",Aux_MT->noBloque,Aux_MT->capacidad,Aux_MT->locIncial,Aux_MT->locFinal,Aux_MT->estado,Aux_MT->acceso);
+		printf("\n--------------------------------------------------------------------------------------------");
+		printf("\n|B%-11d|%-6d bytes|%-12d|%-12d|%-12d|%-12d|%-12d|",Aux_MT->noBloque,Aux_MT->capacidad,Aux_MT->locIncial,Aux_MT->locFinal,Aux_MT->estado,Aux_MT->acceso,0);
 		Aux_MT=Aux_MT->sig;
-	}	
-	printf("\n-------------------------------------------------------------------------------");
+	}
+	printf("\n--------------------------------------------------------------------------------------------");
 }
 
 void Imprimir_Tabla_Tareas(void){
