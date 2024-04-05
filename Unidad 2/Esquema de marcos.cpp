@@ -170,19 +170,130 @@ void Crear_PMT(){
 }
 
 void paginacionSimple(){
+	int marcosLibres = QMMT->nMarco + 1;
 	//Asignacion So
 	int cMarco = CapMarco * Prefijos(PrefijoMarco);
 	int cSo = CapSO * Prefijos(PrefijoCapSO);
 	AuxMMT = PMMT;
+	AuxJT=PJT;
 	for(int i=0; i<cSo/cMarco; i++){
 		!(AuxMMT->Estado==0)?:AuxMMT->Estado=1;
 		AuxMMT=AuxMMT->sig;
+		AuxJT=AuxJT->sig;
+		marcosLibres--;
 	}
-	for(int j=cSo/cMarco; j<Calculos(); j++){
-		
-		AuxMMT=AuxMMT->sig;
+	//Asignacion de los demas programas
+
+	AuxPMT=AuxJT->LocPMT;
+	
+	for(int j=cSo/cMarco; j<nTareas; j++){
+		int nPaginas = AuxJT->nLineas/LineasPorPagina;
+		AuxJT->nLineas%LineasPorPagina==0?:nPaginas++;
+		if(marcosLibres>=nPaginas){
+			while(AuxPMT!=NULL){
+				AuxMMT->Estado=1;
+				AuxPMT->LocMarco=AuxMMT->LocInicio;
+				AuxMMT=AuxMMT->sig;
+				AuxPMT=AuxPMT->sig;
+				marcosLibres--;
+			}
+			if(AuxJT->sig!=NULL){
+				AuxJT=AuxJT->sig;
+				AuxPMT=AuxJT->LocPMT;
+			}
+		}
+		else{
+			break;
+		}
 	}
 } 
+
+/*
+void crearTablaMT(void)
+{
+    aux = Plista;
+    temp = Tlista;
+    int contadorMarcos = 0;
+    nodoTM *contador = Plista;
+    while (contador != NULL)
+    {
+        contadorMarcos++;
+        contador = contador->sig;
+    }
+    contadorMarcos = contadorMarcos - so;
+    int i = 0;
+    while (i < nTareas)
+    {
+        if (contadorMarcos >= temp->nPaginas)
+        {
+            if (aux->estado == 0)
+            {
+                for (int j = 0; j < temp->nPaginas; j++)
+                {
+                    if (PMTlista[i] == NULL)
+                    {
+                        PMTlista[i] = (nodoMMT *)malloc(sizeof(nodoMMT));
+                        PMTlista[i]->npagina = j;
+                        PMTlista[i]->locMarco = aux->locInicio;
+                        contadorMarcos--;
+                        PMTlista[i]->sig = NULL;
+                        QPTM[i] = PMTlista[i];
+                        aux->estado = 1;
+                        aux = aux->sig;
+                    }
+                    else
+                    {
+                        NuevoPTM[i] = (nodoMMT *)malloc(sizeof(nodoMMT));
+                        NuevoPTM[i]->npagina = j;
+                        NuevoPTM[i]->locMarco = aux->locInicio;
+                        contadorMarcos--;
+                        NuevoPTM[i]->sig = NULL;
+                        QPTM[i]->sig = NuevoPTM[i];
+                        QPTM[i] = NuevoPTM[i];
+                        aux->estado = 1;
+                        aux = aux->sig;
+                    }
+                }
+                temp = temp->sig;
+                i++;
+            }
+            else
+            {
+                aux = aux->sig;
+            }
+        }
+        else
+        {
+            for (int j = 0; j < temp->nPaginas; j++)
+                {
+                    if (PMTlista[i] == NULL)
+                    {
+                        PMTlista[i] = (nodoMMT *)malloc(sizeof(nodoMMT));
+                        PMTlista[i]->npagina = j;
+                        PMTlista[i]->locMarco = 0;
+                        PMTlista[i]->sig = NULL;
+                        QPTM[i] = PMTlista[i];
+                    }
+                    else
+                    {
+                        NuevoPTM[i] = (nodoMMT *)malloc(sizeof(nodoMMT));
+                        NuevoPTM[i]->npagina = j;
+                        NuevoPTM[i]->locMarco = 0;
+                        NuevoPTM[i]->sig = NULL;
+                        QPTM[i]->sig = NuevoPTM[i];
+                        QPTM[i] = NuevoPTM[i];
+                    }
+                }
+            temp = temp->sig;
+            i++;
+        }
+        if(aux == NULL)
+        {
+            aux = Plista;
+        }
+    }
+}
+*/
 
 void imprimir(int tabla){
 	switch(tabla){
