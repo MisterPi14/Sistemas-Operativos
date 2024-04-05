@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
-#define espacioSO 20 * 1024// 1kb = 1024 bytes
-#define maxMemoria 80 * 1024
+#define espacioSO 20 /** 1024*/// 1kb = 1024 bytes
+#define maxMemoria 250 /** 1024*/
 #define ntareas 20
 
 void Crear_MT(void);
@@ -44,8 +44,8 @@ int main()
 	Crear_MT();
 	Crear_JT();
 	nBloques=Q_MT->noBloque;
-	//primerAjuste();
-	mejorAjuste();
+	primerAjuste();
+	//mejorAjuste();
 	//peorAjuste();
 	Imprimir_Tabla_Memoria();
 	Imprimir_Tabla_Tareas();
@@ -114,12 +114,12 @@ void Crear_MT(void)
 				Aux_MT=Aux_MT->sig;
 			}
 			
-			if(maxMemoria-espacioOcupado>=espacioSolicitado*1024){
-				printf("\n\tParticion creada con exito, quedan: %d KiloBytes libres\n",maxMemoria-(espacioOcupado+espacioSolicitado*1024));
+			if(maxMemoria-espacioOcupado>=espacioSolicitado/**1024*/){
+				printf("\n\tParticion creada con exito, quedan: %d KiloBytes libres\n",maxMemoria-(espacioOcupado+espacioSolicitado/**1024*/));
 				Nuevo_MT -> noBloque = cont;
-				Nuevo_MT -> capacidad = espacioSolicitado*1024;
+				Nuevo_MT -> capacidad = espacioSolicitado/**1024*/;
 				Nuevo_MT -> locIncial = Q_MT->locFinal+1;
-				Nuevo_MT -> locFinal = Nuevo_MT -> locIncial + espacioSolicitado*1024;
+				Nuevo_MT -> locFinal = Nuevo_MT -> locIncial + espacioSolicitado/**1024*/;
 				Nuevo_MT -> estado = 1;
 				Nuevo_MT -> acceso = 0;
 				Nuevo_MT -> frag = 0;
@@ -144,7 +144,7 @@ void Crear_JT(void){
 		{
 			P_JT = (nodo_JT *) malloc(sizeof(nodo_JT));
 			P_JT -> ntarea = 1;
-			P_JT -> nespacio = 1024*(5+rand()%15);
+			P_JT -> nespacio = /*1024**/(15+rand()%36);
 			P_JT -> sig = NULL;
 			Q_JT = P_JT;
 		}
@@ -153,7 +153,7 @@ void Crear_JT(void){
 			Nuevo_JT = (nodo_JT *) malloc(sizeof(nodo_JT));
 			
 			Nuevo_JT -> ntarea = cont;
-			Nuevo_JT -> nespacio = 1024*(5+rand()%15);
+			Nuevo_JT -> nespacio = /*1024**/(15+rand()%36);//de 15 a 50
 
 			Nuevo_JT->sig=NULL;
 			Q_JT->sig=Nuevo_JT;
@@ -277,7 +277,7 @@ void Ordenamiento_Y_Ajuste(char op){
 		Aux_JT=Aux_JT->sig;
 	}
 }
-/*
+
 //IMPRESION DE LA TABLA SIN EL ORDENAMIENTO INTERNO
 void Imprimir_Tabla_Memoria(void){
 	printf("\n\n--------------------------------------------------------------------------------------------\n|%-90s|\n--------------------------------------------------------------------------------------------","TABLA DE MEMORIA");
@@ -287,17 +287,15 @@ void Imprimir_Tabla_Memoria(void){
 		while(Aux_MT!=NULL){
 			if(i==Aux_MT->noBloque){
 				printf("\n--------------------------------------------------------------------------------------------");
-				printf("\n|B%-11d|%-6d bytes|%-12d|%-12d|%-12d|%-12d|%-12d|",Aux_MT->noBloque,Aux_MT->capacidad,Aux_MT->locIncial,Aux_MT->locFinal,Aux_MT->estado,Aux_MT->acceso,Aux_MT->frag);
+				printf("\n|B%-11d|%-3d KB|%-12d|%-12d|%-12d|%-12d|%-12d|",Aux_MT->noBloque,Aux_MT->capacidad,Aux_MT->locIncial,Aux_MT->locFinal,Aux_MT->estado,Aux_MT->acceso,Aux_MT->frag);
 			}
 			Aux_MT=Aux_MT->sig;
 		}
 	}
-	printf("\n--------------------------------------------------------------------------------------------");
-	printf("%d",&nBloques);
-	
-}*/
+	printf("\n--------------------------------------------------------------------------------------------");	
+}
 
-
+/*
 //IMPRESION DEL ORDENAMIENTO INTERNO DE LA TABLA 
 void Imprimir_Tabla_Memoria(void){
 	Aux_MT=P_MT;
@@ -309,7 +307,7 @@ void Imprimir_Tabla_Memoria(void){
 		Aux_MT=Aux_MT->sig;
 	}
 	printf("\n--------------------------------------------------------------------------------------------");
-}
+}*/
 
 void Imprimir_Tabla_Tareas(void){
 	Aux_JT=P_JT;
