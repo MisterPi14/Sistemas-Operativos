@@ -183,13 +183,13 @@ void paginacionSimple(){
 		marcosLibres--;
 	}
 	//Asignacion de los demas programas
-
+	
 	AuxPMT=AuxJT->LocPMT;
 	
 	for(int j=cSo/cMarco; j<nTareas; j++){
 		int nPaginas = AuxJT->nLineas/LineasPorPagina;
 		AuxJT->nLineas%LineasPorPagina==0?:nPaginas++;
-		if(marcosLibres>=nPaginas){
+		if(marcosLibres>=nPaginas){//si quedan suficientes marcos para la tarea entrante?
 			while(AuxPMT!=NULL){
 				AuxMMT->Estado=1;
 				AuxPMT->LocMarco=AuxMMT->LocInicio;
@@ -197,7 +197,7 @@ void paginacionSimple(){
 				AuxPMT=AuxPMT->sig;
 				marcosLibres--;
 			}
-			if(AuxJT->sig!=NULL){
+			if(AuxJT->sig!=NULL){//si viene otra tarea, trae la lista de mapa de paginas que le corresponde
 				AuxJT=AuxJT->sig;
 				AuxPMT=AuxJT->LocPMT;
 			}
