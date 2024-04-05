@@ -35,24 +35,12 @@ void CREAR_LISTA(void)
 		if (Plista == NULL)
 		{
 			Plista = (nodo_lista *) malloc(sizeof(nodo_lista));
-			printf("Ingresa el No bloque: ");
-			scanf ("%d", &nuevo_elemento);
-			Plista -> noBloque = nuevo_elemento;
-			printf("Ingresa capacidad: ");
-			scanf ("%d", &nuevo_elemento);
-			Plista -> capacidad = nuevo_elemento;
-			printf("Ingresa locIncial: ");
-			scanf ("%d", &nuevo_elemento);
-			Plista -> locIncial = nuevo_elemento;
-			printf("Ingresa locFinal: ");
-			scanf ("%d", &nuevo_elemento);
-			Plista -> locFinal = nuevo_elemento;
-			printf("Ingresa el estado: ");
-			scanf ("%d", &nuevo_elemento);
-			Plista -> estado = nuevo_elemento;
-			printf("Ingresa acceso: ");
-			scanf ("%d", &nuevo_elemento);
-			Plista -> acceso = nuevo_elemento;
+			Plista -> noBloque = 0;
+			Plista -> capacidad = 20*1024/*1kbytes*/;
+			Plista -> locIncial = 0;
+			Plista -> locFinal = Plista -> capacidad - 1;
+			Plista -> estado = 0;//ocupado
+			Plista -> acceso = NULL;
 			
 			Plista -> sig = NULL;
 			Qlista = Plista;
@@ -64,7 +52,7 @@ void CREAR_LISTA(void)
 			printf("Ingresa el bloque: ");
 			scanf ("%d", &nuevo_elemento);
 			Nuevolista -> noBloque = nuevo_elemento;
-			printf("Ingresa capacidad: ");
+			printf("Ingresa la capacidad (en kilobytes) de la 1er particion: ");
 			scanf ("%d", &nuevo_elemento);
 			Nuevolista -> capacidad = nuevo_elemento;
 			printf("Ingresa locIncial: ");
