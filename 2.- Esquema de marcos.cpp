@@ -175,18 +175,19 @@ void paginacionSimple(){
 	int cMarco = CapMarco * Prefijos(PrefijoMarco);
 	int cSo = CapSO * Prefijos(PrefijoCapSO);
 	AuxMMT = PMMT;
-	AuxJT=PJT;
-	for(int i=0; i<cSo/cMarco; i++){
+	int nBloquesParaSo = cSo/cMarco;
+	cSo%cMarco==0?:nBloquesParaSo++;
+	for(int i=0; i<nBloquesParaSo; i++){
 		!(AuxMMT->Estado==0)?:AuxMMT->Estado=1;
 		AuxMMT=AuxMMT->sig;
-		AuxJT=AuxJT->sig;
 		marcosLibres--;
 	}
-	//Asignacion de los demas programas
 	
+	//Asignacion de los demas programas
+	AuxJT=PJT;
 	AuxPMT=AuxJT->LocPMT;
 	
-	for(int j=cSo/cMarco; j<nTareas; j++){
+	for(int j=0; j<nTareas; j++){//Se deben ocupar 101 marcos 
 		int nPaginas = AuxJT->nLineas/LineasPorPagina;
 		AuxJT->nLineas%LineasPorPagina==0?:nPaginas++;
 		if(marcosLibres>=nPaginas){//si quedan suficientes marcos para la tarea entrante?
@@ -200,9 +201,10 @@ void paginacionSimple(){
 			if(AuxJT->sig!=NULL){//si viene otra tarea, trae la lista de mapa de paginas que le corresponde
 				AuxJT=AuxJT->sig;
 				AuxPMT=AuxJT->LocPMT;
-			}
+			}/*Si esta condicion ve que ya no existe tarea alguna, no programa el frenado 
+			del ciclo pues en el for nTareas coincide con el numero de nodos en JT*/
 		}
-		else{
+		else{//solo se ejecuta si ya no hay espacio para la tarea actual
 			break;
 		}
 	}
@@ -320,14 +322,16 @@ void imprimir(int tabla){
 			}
 			break;
 		case 2:
-			printf("-----TABLA DE MAPA DE PAGINAS-----\n");
-			for(int k=0; k<nTareas; k++){
-				AuxPMT=PPMT[k];
+			printf("-----TABLA DE MAPA DE PAGINAS-----\n\n");
+			for(int i=0; i<nTareas; i++){
+				printf("\n\n---Mapa de pagina de J%d--%s\n",i+1,i>8?"":"-");
+				printf("|   Pagina   |   Marco   |\n");
+				AuxPMT=PPMT[i];
 				while(AuxPMT!=NULL){
-					printf("\n%d\n",AuxPMT->nPagina);
+					printf("|%6d%6s|%-9d%s|\n",AuxPMT->nPagina,"",AuxPMT->LocMarco,PrefijoMarco);
 					AuxPMT=AuxPMT->sig;
 				}
-				printf("-------------------------------");
+				printf("--------------------------");
 			}
 			break;
 	}
