@@ -154,12 +154,12 @@ void Crear_PMT(){
 				PPMT[i]->LocMarco=0;
 				PPMT[i]->sig=NULL;
 				QPMT[i]=PPMT[i];
+				AuxJT->LocPMT=PPMT[i];
 			}
-			else{                  
-				AuxJT=AuxJT->sig;
-			
-			
-			
+			else{
+				NuevoPMT = (PMT*)malloc(sizeof(PMT));
+				NuevoPMT->nPagina=j;
+				NuevoPMT->LocMarco=0;
 				NuevoPMT->sig=NULL;
 				QPMT[i]->sig=NuevoPMT;
 				QPMT[i]=NuevoPMT;
@@ -174,18 +174,19 @@ void paginacionSimple(){
 	int cMarco = CapMarco * Prefijos(PrefijoMarco);
 	int cSo = CapSO * Prefijos(PrefijoCapSO);
 	AuxMMT = PMMT;
-	for(int i=0; i<CapSO/CapMarco; i++){
+	for(int i=0; i<cSo/cMarco; i++){
 		!(AuxMMT->Estado==0)?:AuxMMT->Estado=1;
+		AuxMMT=AuxMMT->sig;
 	}
 	for(int j=cSo/cMarco; j<Calculos(); j++){
-		//AuxPMT
+		
 		AuxMMT=AuxMMT->sig;
 	}
 } 
-                     
+
 void imprimir(int tabla){
-	switch(tabla){      
-  
+	switch(tabla){
+		case 0:
 			printf("-----TABLA DE MAPA DE MEMORIA-----\n");
 			AuxMMT = (MMT*)malloc(sizeof(MMT));
 			AuxMMT = PMMT;
@@ -203,7 +204,7 @@ void imprimir(int tabla){
 			printf("|%-12s | %-12s | %-12s|\n","No.Tarea","No.Lineas","Loc.PMT");
 			printf("--------------------------------------------\n");
 			while(AuxJT!=NULL){
-				printf("|%-12d | %-12d | %-12d| \n",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT->nPagina);
+				printf("|%-12d | %-12d | %-12d| \n",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT);
 				AuxJT=AuxJT->sig;
 			}
 			break;
@@ -211,14 +212,11 @@ void imprimir(int tabla){
 			printf("-----TABLA DE MAPA DE PAGINAS-----\n");
 			for(int k=0; k<nTareas; k++){
 				AuxPMT=PPMT[k];
-				printf("\n\n-------------J%2d--------------\n",k+1);
-				printf("|%-12s | %-12s |\n","Pagina","Marco");
-				printf("------------------------------\n");
 				while(AuxPMT!=NULL){
-					printf("|%-12d | %-12d |\n",AuxPMT->nPagina, AuxPMT->LocMarco);
+					printf("\n%d\n",AuxPMT->nPagina);
 					AuxPMT=AuxPMT->sig;
 				}
-				printf("------------------------------\n");
+				printf("-------------------------------");
 			}
 			break;
 	}
