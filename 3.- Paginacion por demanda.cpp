@@ -24,9 +24,11 @@ int Calculos();
 void Crear_MMT();
 void Crear_JT();
 void Crear_PMT();
-void paginacionSimple();
 void Seleccion();
 void imprimir(int);
+void asignacionDelSo();
+//Paginacion simple
+void paginacionSimple();
 //Paginacion por demanda
 void paginacionPorDemanda();
 void algoritmoAdminMem();
@@ -72,6 +74,7 @@ int main(){
 	Crear_MMT();
 	Crear_JT();
 	Crear_PMT();
+	asignacionDelSo();
 	paginacionPorDemanda();
 }
 
@@ -203,7 +206,7 @@ void Crear_PMT(){
 	}
 }
 
-void paginacionSimple(){
+void asignacionDelSo(){
 	int marcosLibres = QMMT->nMarco + 1;
 	//Asignacion So
 	int cMarco = CapMarco * Prefijos(PrefijoMarco);
@@ -216,6 +219,10 @@ void paginacionSimple(){
 		AuxMMT=AuxMMT->sig;
 		marcosLibres--;
 	}
+}
+/*
+void paginacionSimple(){
+
 	
 	//Asignacion de los demas programas
 	AuxJT=PJT;
@@ -235,14 +242,14 @@ void paginacionSimple(){
 			if(AuxJT->sig!=NULL){//si viene otra tarea, trae la lista de mapa de paginas que le corresponde
 				AuxJT=AuxJT->sig;
 				AuxPMT=AuxJT->VinculoPMT;
-			}/*Si esta condicion ve que ya no existe tarea alguna, no programa el frenado 
-			del ciclo pues en el for nTareas coincide con el numero de nodos en JT*/
+			}Si esta condicion ve que ya no existe tarea alguna, no programa el frenado 
+			del ciclo pues en el for nTareas coincide con el numero de nodos en JT
 		}
 		else{//solo se ejecuta si ya no hay espacio para la tarea actual
 			break;
 		}
 	}
-}
+}*/
 
 void Fifo(int,int);
 void eliminarHuecos();
@@ -261,7 +268,7 @@ void algoritmoAdminMem(){
 		int paginaActual = AuxPMT->VinculoJT->Secuencia[i];//obteniendo las paginas de la secuencia
 		AuxPMT = PPMT[tareaEjecucion];//iniciando el el primer nodo
 		while(AuxPMT->sig!=NULL){//Legando a la pagina que deseamos consultar
-			if(AuxPMT->nPagina==PaginaActual){break;}
+			if(AuxPMT->nPagina==paginaActual){break;}
 			AuxPMT=AuxPMT->sig;
 		}
 		//Leyendo el estado
@@ -269,8 +276,15 @@ void algoritmoAdminMem(){
 			
 		}
 		else{//Si esta en memoria virtual
-			AuxPMT->estado=1;
-			AuxPMT->referencia=1;
+			if(marcosLibres>0){//Si aun quedan marcos
+				AuxPMT->estado=1;
+				AuxPMT->referencia=1;
+				AuxMMT->nMarco;
+				marcosLibres--;
+			}
+			else{
+				
+			}
 		}
 	}
 	/*
