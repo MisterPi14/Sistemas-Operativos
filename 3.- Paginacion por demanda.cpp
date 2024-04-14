@@ -13,7 +13,7 @@
 #define nTareas 20
 #define LineasPorPagina 100
 //Paginacion por demanda
-#define nTiempos 16
+#define nTiempos 5
 #define marcosPorPagina 3
 #define tareaEjecucion 4
 
@@ -25,12 +25,15 @@ void Crear_MMT();
 void Crear_JT();
 void Crear_PMT();
 void paginacionSimple();
-void Seleccion(int[]);
-void imprimir(int, int[]);
+void Seleccion();
+void imprimir(int);
 //Paginacion por demanda
 void paginacionPorDemanda();
-void algoritmoAdminMem(int[]);
-void algoritmoFIFO(int[]);
+void algoritmoAdminMem();
+void algoritmoFIFO();
+
+int cola[marcosPorPagina]={0};
+int fin=-1;
 
 struct MMT{
 	int nMarco;
@@ -72,9 +75,9 @@ int main(){
 	paginacionPorDemanda();
 }
 
-void Seleccion(int cola[]){
+void Seleccion(){
 	int op=0;
-	imprimir(op,cola);
+	imprimir(op);
 	char tecla;
     do {
         tecla = _getch(); // Espera a que se presione una tecla sin esperar por Enter
@@ -84,7 +87,7 @@ void Seleccion(int cola[]){
             (op==0)?:op--;
         }
         system("cls");
-        imprimir(op, cola);
+        imprimir(op);
     }while (tecla != 27); // Sale del bucle cuando se presiona la tecla Esc (27 es el código ASCII de Esc)
 }
 
@@ -176,6 +179,9 @@ void Crear_PMT(){
 				PPMT[i]->nPagina=j;
 				PPMT[i]->LocMarco=0;
 				PPMT[i]->VinculoJT=AuxJT;
+				PPMT[i]->estado=0;
+				PPMT[i]->referencia=0;
+				PPMT[i]->modificacion=0;
 				PPMT[i]->sig=NULL;
 				QPMT[i]=PPMT[i];
 				AuxJT->VinculoPMT=PPMT[i];
@@ -185,6 +191,9 @@ void Crear_PMT(){
 				NuevoPMT->nPagina=j;
 				NuevoPMT->LocMarco=0;	
 				NuevoPMT->VinculoJT=AuxJT;	
+				NuevoPMT->estado=0;
+				NuevoPMT->referencia=0;
+				NuevoPMT->modificacion=0;
 				NuevoPMT->sig=NULL;		
 				QPMT[i]->sig=NuevoPMT;
 				QPMT[i]=NuevoPMT;
@@ -233,34 +242,50 @@ void paginacionSimple(){
 			break;
 		}
 	}
-} 
+}
 
-void Fifo(int[],int&,int,int);
-void eliminarHuecos(int[],int);
+void Fifo(int,int);
+void eliminarHuecos();
 
 void paginacionPorDemanda(){
 	AuxPMT = PPMT[tareaEjecucion];//AuxPMT se queda con la tarea que le pedimos
-	int cola[marcosPorPagina]={0};//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
-	algoritmoAdminMem(cola);
+	algoritmoAdminMem();
 	//algoritmoFIFO(int cola[])
-	Seleccion(cola);
+	Seleccion();
 }
 
-void algoritmoAdminMem(int cola[]){
-	//AuxPMT->
-	int fin=-1;
-	Fifo(cola,fin,1,6);
-	Fifo(cola,fin,1,3);
-	Fifo(cola,fin,1,8);
-	Fifo(cola,fin,2,0);
+void algoritmoAdminMem(){
+	int marcosLibres = marcosPorPagina;
+	AuxPMT = PPMT[tareaEjecucion];
+	for(int i=0; i<nTiempos; i++){
+		int paginaActual = AuxPMT->VinculoJT->Secuencia[i];//obteniendo las paginas de la secuencia
+		AuxPMT = PPMT[tareaEjecucion];//iniciando el el primer nodo
+		while(AuxPMT->sig!=NULL){//Legando a la pagina que deseamos consultar
+			if(AuxPMT->nPagina==PaginaActual){break;}
+			AuxPMT=AuxPMT->sig;
+		}
+		//Leyendo el estado
+		if(AuxPMT->estado==1){//si esta cargada en memoria fisica
+			
+		}
+		else{//Si esta en memoria virtual
+			AuxPMT->estado=1;
+			AuxPMT->referencia=1;
+		}
+	}
+	/*
+	Fifo(1,6);
+	Fifo(1,8);
+	Fifo(1,5);
+	Fifo(2,0);*/
 }
 
-void algoritmoFIFO(int cola[]){
+void algoritmoFIFO(){
 	
 }
 
 
-void Fifo(int cola[],int &fin,int ope,int pagina)
+void Fifo(int ope,int pagina)
 {
 	switch(ope)
 	{
@@ -280,7 +305,7 @@ void Fifo(int cola[],int &fin,int ope,int pagina)
 			if(fin>=0)
 			{
 				cola[0]=0;
-				eliminarHuecos(cola,fin);
+				eliminarHuecos();
 				fin--;
 			}
 			else//en teoria este no se hace pues nunca se vaciara
@@ -291,32 +316,32 @@ void Fifo(int cola[],int &fin,int ope,int pagina)
 	}
 }
 
-void eliminarHuecos(int x[],int fin)
+void eliminarHuecos()
 {
-	int array_aux[AuxPMT->VinculoJT->nPaginas]={0};
+	int array_aux[marcosPorPagina]={0};
 	int j=0;
 	
 	for (int i=0;i<=fin;i++)
 	{
-		if(x[i]!=0)
+		if(cola[i]!=0)
 		{
-			array_aux[j]=x[i];
+			array_aux[j]=cola[i];
 			j++;
 		}		
 	}
 	
 	for (int i=0;i<=fin;i++)
 	{
-		x[i]=0;
+		cola[i]=0;
 	}
 	for (int i=0;i<=fin;i++)
 	{
-		x[i]=array_aux[i];
+		cola[i]=array_aux[i];
 	}
 }
 
 
-void imprimir(int tabla, int cola[]){
+void imprimir(int tabla){
 	switch(tabla){
 		case 0:
 			printf("-----TABLA DE MAPA DE MEMORIA-----\n");
