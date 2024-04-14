@@ -179,8 +179,9 @@ void Crear_PMT(){
 			else{
 				NuevoPMT = (PMT*)malloc(sizeof(PMT));
 				NuevoPMT->nPagina=j;
-				NuevoPMT->LocMarco=0;
-				NuevoPMT->sig=NULL;
+				NuevoPMT->LocMarco=0;	
+				NuevoPMT->VinculoJT=AuxJT;	
+				NuevoPMT->sig=NULL;		
 				QPMT[i]->sig=NuevoPMT;
 				QPMT[i]=NuevoPMT;
 			}
@@ -234,9 +235,9 @@ int tareaEjecucion;
 
 void paginacionPorDemanda(){
 	printf("\nQue tarea desea ejecutar: ");
-	scanf("%d",&tareaEjecucion);
+	scanf("%d",&tareaEjecucion);	tareaEjecucion--;
 	AuxPMT = PPMT[tareaEjecucion];//AuxPMT se queda con la tarea que le pedimos
-    AuxPMT->VinculoJT->nPaginas;//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
+    printf("%d",AuxPMT->VinculoJT->nPaginas);//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
 /*	PPMT[i]->estado=1;
 	PPMT[i]->referencia=1;
 	PPMT[i]->modificacion=1;
@@ -274,9 +275,9 @@ void imprimir(int tabla){
 			break;
 		case 2:
 			printf("-----TABLA DE MAPA DE PAGINAS-----\n\n");
-				printf("\n\n-----------------------Mapa de pagina de J%d---------------------%s\n",tareaEjecucion,tareaEjecucion>8?"":"-");
+				printf("\n\n-----------------------Mapa de pagina de J%d---------------------%s\n",tareaEjecucion+1,tareaEjecucion>8?"":"-");
 				printf("|   Pagina   |   Marco   |   Estado   | Referencia |Modificacion|\n");
-				AuxPMT=PPMT[tareaEjecucion-1];
+				AuxPMT=PPMT[tareaEjecucion];
 				while(AuxPMT!=NULL){
 					printf("|%6d%6s|%-9d%s|%6d%6s|%6d%6s|%6d%6s|\n",AuxPMT->nPagina,"",AuxPMT->LocMarco,PrefijoMarco,AuxPMT->estado,"",AuxPMT->referencia,"",AuxPMT->modificacion,"");
 					AuxPMT=AuxPMT->sig;
