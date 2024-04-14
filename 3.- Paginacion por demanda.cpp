@@ -12,8 +12,10 @@
 
 #define nTareas 20
 #define LineasPorPagina 100
-
-#define nTiempos 6
+//Paginacion por demanda
+#define nTiempos 16
+#define marcosPorPagina 3
+#define tareaEjecucion 4
 
 using namespace std;
 
@@ -23,9 +25,12 @@ void Crear_MMT();
 void Crear_JT();
 void Crear_PMT();
 void paginacionSimple();
+void Seleccion(int[]);
+void imprimir(int, int[]);
+//Paginacion por demanda
 void paginacionPorDemanda();
-void Seleccion();
-void imprimir(int);
+void algoritmoAdminMem(int[]);
+void algoritmoFIFO(int[]);
 
 struct MMT{
 	int nMarco;
@@ -65,12 +70,11 @@ int main(){
 	Crear_JT();
 	Crear_PMT();
 	paginacionPorDemanda();
-	Seleccion();
 }
 
-void Seleccion(){
+void Seleccion(int cola[]){
 	int op=0;
-	imprimir(op);
+	imprimir(op,cola);
 	char tecla;
     do {
         tecla = _getch(); // Espera a que se presione una tecla sin esperar por Enter
@@ -80,7 +84,7 @@ void Seleccion(){
             (op==0)?:op--;
         }
         system("cls");
-        imprimir(op);
+        imprimir(op, cola);
     }while (tecla != 27); // Sale del bucle cuando se presiona la tecla Esc (27 es el código ASCII de Esc)
 }
 
@@ -165,7 +169,7 @@ void Crear_JT(){
 
 void Crear_PMT(){
 	AuxJT=PJT;
-	for(int i=0; i<nTareas; i++){
+	for(int i=1; i<nTareas+1; i++){
 		for(int j=0; j<AuxJT->nPaginas; j++){
 			if(PPMT[i]==NULL){
 				PPMT[i] = (PMT*)malloc(sizeof(PMT));
@@ -231,29 +235,32 @@ void paginacionSimple(){
 	}
 } 
 
-int tareaEjecucion; 
-
-void Fifo(int[],int,int,int);
+void Fifo(int[],int&,int,int);
 void eliminarHuecos(int[],int);
 
 void paginacionPorDemanda(){
-	printf("\nQue tarea desea ejecutar: ");
-	scanf("%d",&tareaEjecucion);	tareaEjecucion--;
 	AuxPMT = PPMT[tareaEjecucion];//AuxPMT se queda con la tarea que le pedimos
-/*	PPMT[i]->estado=1;
-	PPMT[i]->referencia=1;
-	PPMT[i]->modificacion=1;
-		
-	*/
-	int cola[AuxPMT->VinculoJT->nPaginas]={0};//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
-	Fifo(cola,-1,1,6);
-	for(int i=0; i<AuxPMT->VinculoJT->nPaginas; i++){
-		printf("|%d",cola[i]);
-	}
+	int cola[marcosPorPagina]={0};//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
+	algoritmoAdminMem(cola);
+	//algoritmoFIFO(int cola[])
+	Seleccion(cola);
+}
+
+void algoritmoAdminMem(int cola[]){
+	//AuxPMT->
+	int fin=-1;
+	Fifo(cola,fin,1,6);
+	Fifo(cola,fin,1,3);
+	Fifo(cola,fin,1,8);
+	Fifo(cola,fin,2,0);
+}
+
+void algoritmoFIFO(int cola[]){
+	
 }
 
 
-void Fifo(int cola[],int fin,int ope,int pagina)
+void Fifo(int cola[],int &fin,int ope,int pagina)
 {
 	switch(ope)
 	{
@@ -265,7 +272,7 @@ void Fifo(int cola[],int fin,int ope,int pagina)
 			}
 			else
 			{//Aqui se debera sacar la pagina candidata
-			
+				
 			}
 
 			break;
@@ -309,7 +316,7 @@ void eliminarHuecos(int x[],int fin)
 }
 
 
-void imprimir(int tabla){
+void imprimir(int tabla, int cola[]){
 	switch(tabla){
 		case 0:
 			printf("-----TABLA DE MAPA DE MEMORIA-----\n");
@@ -339,15 +346,29 @@ void imprimir(int tabla){
 			break;
 		case 2:
 			printf("-----TABLA DE MAPA DE PAGINAS-----\n\n");
-				printf("\n\n-----------------------Mapa de pagina de J%d---------------------%s\n",tareaEjecucion+1,tareaEjecucion>8?"":"-");
-				printf("|   Pagina   |   Marco   |   Estado   | Referencia |Modificacion|\n");
 				AuxPMT=PPMT[tareaEjecucion];
+				/////////////////////////////////////////////////////////////////////////////////////////////////////////
+				printf("           ");for(int i=0; i<nTiempos; i++){printf("----");}
+				printf("-\nSecuencia: ");
+				for(int i=0; i<nTiempos; i++){
+					printf("|%2d%1s",AuxPMT->VinculoJT->Secuencia[i],"");
+				}
+				printf("|\n           -");for(int i=0; i<nTiempos; i++){printf("----");}
+				////////////////////////////////////////////////////////////////////////////////////////////////////////
+				printf("\n\n-----------------------Mapa de pagina de J%d---------------------%s\n",tareaEjecucion,tareaEjecucion>8?"":"-");
+				printf("|   Pagina   |   Marco   |   Estado   | Referencia |Modificacion|\n");
 				while(AuxPMT!=NULL){
 					printf("|%6d%6s|%-9d%s|%6d%6s|%6d%6s|%6d%6s|\n",AuxPMT->nPagina,"",AuxPMT->LocMarco,PrefijoMarco,AuxPMT->estado,"",AuxPMT->referencia,"",AuxPMT->modificacion,"");
 					AuxPMT=AuxPMT->sig;
 				}
-				printf("-----------------------------------------------------------------");
-			
+				printf("-----------------------------------------------------------------\n\n");
+				/////////////////////////////////////////////////////////////////////////////////////////////////////////
+				printf("      -");for(int i=0; i<marcosPorPagina; i++){printf("------");}
+				printf("\nCola: ");
+				for(int i=0; i<marcosPorPagina; i++){
+					printf("|%3d%2s",cola[i],"");
+				}
+				printf("|\n      -");for(int i=0; i<marcosPorPagina; i++){printf("------");}
 			break;
 	}
 }
