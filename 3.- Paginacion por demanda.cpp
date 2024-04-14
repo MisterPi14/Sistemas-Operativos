@@ -13,6 +13,8 @@
 #define nTareas 20
 #define LineasPorPagina 100
 
+#define nTiempos 6
+
 using namespace std;
 
 int Prefijos(string);
@@ -30,7 +32,7 @@ struct MMT{
 	int LocInicio;
 	bool Estado;
 	MMT *sig;
-};//
+};
 
 struct PMT;
 
@@ -38,8 +40,9 @@ struct JT{
 	int nTarea;
 	int nLineas;
 	int LocPMT;
-	int Secuencia;
+	int Secuencia[nTiempos];
 	PMT *VinculoPMT;
+	int nPaginas;
 	JT *sig;
 };
 
@@ -132,6 +135,12 @@ void Crear_JT(){
 			PJT->nTarea=1;
 			PJT->nLineas=100+rand()%901;
 			PJT->LocPMT=1010;
+			PJT->nPaginas = PJT->nLineas/LineasPorPagina;//el n paginas es la / de lineas sobre l00 en este ejemplo
+			PJT->nLineas%LineasPorPagina==0?:PJT->nPaginas++;//si la division no es exacta añade un espacio extra
+			for(int i=1; i<nTiempos; i++){
+				PJT->Secuencia[i]=0+rand()%PJT->nPaginas;
+			}
+			PJT->Secuencia[0]=0;
 			PJT->sig=NULL;
 			QJT=PJT;
 		}
@@ -140,6 +149,12 @@ void Crear_JT(){
 			NuevoJT->nTarea=i;
 			NuevoJT->nLineas=100+rand()%901;
 			NuevoJT->LocPMT=1010+i-1;
+			NuevoJT->nPaginas = NuevoJT->nLineas/LineasPorPagina;//el n paginas es la / de lineas sobre l00 en este ejemplo
+			NuevoJT->nLineas%LineasPorPagina==0?:NuevoJT->nPaginas++;//si la division no es exacta añade un espacio extra
+			for(int i=1; i<nTiempos; i++){
+				NuevoJT->Secuencia[i]=0+rand()%NuevoJT->nPaginas;
+			}
+			NuevoJT->Secuencia[0]=0;
 			NuevoJT->sig=NULL;
 			QJT->sig=NuevoJT;
 			QJT=NuevoJT;
@@ -243,7 +258,11 @@ void imprimir(int tabla){
 			printf("|%-12s | %-12s | %-12s|\n","No.Tarea","No.Lineas","Loc.PMT");
 			printf("--------------------------------------------\n");
 			while(AuxJT!=NULL){
-				printf("|%-12d | %-12d | %-12d| \n",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT);
+				printf("|%-12d | %-12d | %-12d| %-12d|",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT,AuxJT->nPaginas);
+				for(int i=0; i<nTiempos; i++){
+					printf("%d",AuxJT->Secuencia[i]);
+				}
+				printf("\n");
 				AuxJT=AuxJT->sig;
 			}
 			break;
