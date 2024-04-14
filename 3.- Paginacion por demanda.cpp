@@ -233,17 +233,81 @@ void paginacionSimple(){
 
 int tareaEjecucion; 
 
+void Fifo(int[],int,int,int);
+void eliminarHuecos(int[],int);
+
 void paginacionPorDemanda(){
 	printf("\nQue tarea desea ejecutar: ");
 	scanf("%d",&tareaEjecucion);	tareaEjecucion--;
 	AuxPMT = PPMT[tareaEjecucion];//AuxPMT se queda con la tarea que le pedimos
-    printf("%d",AuxPMT->VinculoJT->nPaginas);//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
 /*	PPMT[i]->estado=1;
 	PPMT[i]->referencia=1;
 	PPMT[i]->modificacion=1;
 		
 	*/
+	int cola[AuxPMT->VinculoJT->nPaginas]={0};//numero de paginas a traves de JT desde PMT, nos ahora recorrer JT <tareaEjecucion> veces
+	Fifo(cola,-1,1,6);
+	for(int i=0; i<AuxPMT->VinculoJT->nPaginas; i++){
+		printf("|%d",cola[i]);
+	}
 }
+
+
+void Fifo(int cola[],int fin,int ope,int pagina)
+{
+	switch(ope)
+	{
+		case 1://Entrada
+			if(fin<7)
+			{
+				fin++;
+				cola[fin]=pagina;
+			}
+			else
+			{//Aqui se debera sacar la pagina candidata
+			
+			}
+
+			break;
+		case 2://salida
+			if(fin>=0)
+			{
+				cola[0]=0;
+				eliminarHuecos(cola,fin);
+				fin--;
+			}
+			else//en teoria este no se hace pues nunca se vaciara
+			{
+				
+			}
+			break;
+	}
+}
+
+void eliminarHuecos(int x[],int fin)
+{
+	int array_aux[AuxPMT->VinculoJT->nPaginas]={0};
+	int j=0;
+	
+	for (int i=0;i<=fin;i++)
+	{
+		if(x[i]!=0)
+		{
+			array_aux[j]=x[i];
+			j++;
+		}		
+	}
+	
+	for (int i=0;i<=fin;i++)
+	{
+		x[i]=0;
+	}
+	for (int i=0;i<=fin;i++)
+	{
+		x[i]=array_aux[i];
+	}
+}
+
 
 void imprimir(int tabla){
 	switch(tabla){
