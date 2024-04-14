@@ -30,7 +30,7 @@ struct MMT{
 	int LocInicio;
 	bool Estado;
 	MMT *sig;
-};
+};//
 
 struct PMT;
 
