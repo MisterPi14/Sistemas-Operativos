@@ -279,7 +279,8 @@ void algoritmoAdminMem(){
 			if(marcosLibres>0){//Si aun quedan marcos
 				AuxPMT->estado=1;
 				AuxPMT->referencia=1;
-				AuxMMT->nMarco;
+				AuxPMT->LocMarco=AuxMMT->nMarco;
+				AuxMMT=AuxMMT->sig;
 				marcosLibres--;
 			}
 			else{
