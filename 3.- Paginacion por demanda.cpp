@@ -34,7 +34,7 @@ void paginacionSimple();
 //Paginacion por demanda
 void paginacionPorDemanda();
 void algoritmoAdminMem();
-void swappingFIFO(PMT*);
+void swappingFIFO(PMT*,int);
 
 int cola[marcosPorPagina]={0};
 int fin=-1;
@@ -280,15 +280,15 @@ void algoritmoAdminMem(){
 			if(marcosLibres>0){//Si aun quedan marcos
 				AuxPMT->estado=1;
 				AuxPMT->referencia=1;
+				AuxPMT->LocMarco=AuxMMT->LocInicio;
 				registroEjecucion(i);
 				AuxPMT->referencia=0;
-				AuxPMT->LocMarco=AuxMMT->nMarco;
 				AuxMMT=AuxMMT->sig;
 				marcosLibres--;
 				Fifo(1,paginaActual);
 			}
 			else{
-				swappingFIFO(AuxPMT);
+				swappingFIFO(AuxPMT,i);
 			}
 		}
 	}
@@ -299,7 +299,7 @@ void algoritmoAdminMem(){
 	Fifo(2,0);*/
 }
 
-void swappingFIFO(PMT *AuxPMT){
+void swappingFIFO(PMT *AuxPMT, int i){
 	int Candidata = cola[0];
 	NuevoPMT = PPMT[tareaEjecucion];
 	while(NuevoPMT->sig!=NULL){//Legando a la pagina que deseamos remplazar
@@ -426,10 +426,11 @@ void imprimir(int tabla){
 				////////////////////////////////////////////////////////////////////////////////////////////////////////
 				printf("\n\n-----------------------Mapa de pagina de J%d---------------------%s\n",tareaEjecucion,tareaEjecucion>8?"":"-");
 				printf("|   Pagina   |   Marco   |   Estado   | Referencia |Modificacion|\n");
-				while(AuxPMT!=NULL){
-					printf("|%6d%6s|%-9d%s|%6d%6s|%6d%6s|%6d%6s|\n",AuxPMT->nPagina,"",AuxPMT->LocMarco,PrefijoMarco,AuxPMT->estado,"",AuxPMT->referencia,"",AuxPMT->modificacion,"");
-					AuxPMT=AuxPMT->sig;
-				}
+				int i=3;
+				//while(i<nTiempos){
+					printf("|%6d%6s|%-9d%s|%6d%6s|%6d%6s|%6d%6s|\n",PMTE[i]->nPagina,"",PMTE[i]->LocMarco,PrefijoMarco,PMTE[i]->estado,"",PMTE[i]->referencia,"",PMTE[i]->modificacion,"");
+					//i++;
+				//}
 				printf("-----------------------------------------------------------------\n\n");
 				/////////////////////////////////////////////////////////////////////////////////////////////////////////
 				printf("      -");for(int i=0; i<marcosPorPagina; i++){printf("-----");}
