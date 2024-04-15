@@ -66,18 +66,9 @@ struct PMT{
 	PMT *sig;
 };
 
-struct PMTE{//PMTExecute -> pagina en ejecucion
-	int nPagina;
-	int LocMarco;
-	bool estado;
-	bool referencia;
-	bool modificacion;
-	JT *VinculoJT;
-	PMT *sig;};
-
 MMT *PMMT, *QMMT, *NuevoMMT, *AuxMMT;
 JT *PJT, *QJT, *NuevoJT, *AuxJT;
-PMT *PPMT[nTareas], *QPMT[nTareas], *NuevoPMT, *AuxPMT;
+PMT *PPMT[nTareas], *QPMT[nTareas], *NuevoPMT, *AuxPMT, *PMTE[nTiempos];
 
 int main(){
 	Crear_MMT();
@@ -262,11 +253,10 @@ void paginacionSimple(){
 
 void Fifo(int,int);
 void eliminarHuecos();
+void registroEjecucion(int);
 
 void paginacionPorDemanda(){
-	AuxPMT = PPMT[tareaEjecucion];//AuxPMT se queda con la tarea que le pedimos
 	algoritmoAdminMem();
-	//algoritmoFIFO(int cola[])
 	Seleccion();
 }
 
@@ -283,14 +273,14 @@ void algoritmoAdminMem(){
 		if(AuxPMT->estado==1){//si esta cargada en memoria fisica
 			AuxPMT->estado=1;
 			AuxPMT->referencia=1;
-			//Imprimir
+			registroEjecucion(i);
 			AuxPMT->referencia=0;
 		}
 		else{//Si esta en memoria virtual
 			if(marcosLibres>0){//Si aun quedan marcos
 				AuxPMT->estado=1;
 				AuxPMT->referencia=1;
-				//Imprimir
+				registroEjecucion(i);
 				AuxPMT->referencia=0;
 				AuxPMT->LocMarco=AuxMMT->nMarco;
 				AuxMMT=AuxMMT->sig;
@@ -330,6 +320,14 @@ void swappingFIFO(PMT *AuxPMT){
 	Fifo(1,AuxPMT->nPagina);//actualizamos con la nueva
 }
 
+void registroEjecucion(int i){
+	PMTE[i] = (PMT*)malloc(sizeof(PMT));
+	PMTE[i]->nPagina=AuxPMT->nPagina;
+	PMTE[i]->LocMarco=AuxPMT->LocMarco;
+	PMTE[i]->modificacion=AuxPMT->modificacion;
+	PMTE[i]->referencia=AuxPMT->referencia;
+	PMTE[i]->estado=AuxPMT->estado;
+}
 
 void Fifo(int ope,int pagina)
 {
@@ -417,7 +415,7 @@ void imprimir(int tabla){
 			break;
 		case 2:
 			printf("-----TABLA DE MAPA DE PAGINAS-----\n\n");
-				AuxPMT=PPMT[tareaEjecucion];
+				//AuxPMT=PPMT[tareaEjecucion];
 				/////////////////////////////////////////////////////////////////////////////////////////////////////////
 				printf("           ");for(int i=0; i<nTiempos; i++){printf("-----");}
 				printf("-\nSecuencia: ");
