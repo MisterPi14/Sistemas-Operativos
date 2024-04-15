@@ -66,6 +66,15 @@ struct PMT{
 	PMT *sig;
 };
 
+struct PMTE{//PMTExecute -> pagina en ejecucion
+	int nPagina;
+	int LocMarco;
+	bool estado;
+	bool referencia;
+	bool modificacion;
+	JT *VinculoJT;
+	PMT *sig;};
+
 MMT *PMMT, *QMMT, *NuevoMMT, *AuxMMT;
 JT *PJT, *QJT, *NuevoJT, *AuxJT;
 PMT *PPMT[nTareas], *QPMT[nTareas], *NuevoPMT, *AuxPMT;
@@ -301,7 +310,24 @@ void algoritmoAdminMem(){
 }
 
 void swappingFIFO(PMT *AuxPMT){
-	
+	int Candidata = cola[0];
+	NuevoPMT = PPMT[tareaEjecucion];
+	while(NuevoPMT->sig!=NULL){//Legando a la pagina que deseamos remplazar
+		if(NuevoPMT->nPagina==Candidata){break;}
+		NuevoPMT=NuevoPMT->sig;
+	}
+	//Tarea en transito
+	AuxPMT->LocMarco=NuevoPMT->LocMarco;
+	AuxPMT->estado=1;
+	AuxPMT->referencia=1;
+	AuxPMT->referencia=0;
+	//Tarea con mas tiempo en memoria
+	NuevoPMT->LocMarco=0;
+	NuevoPMT->estado=0;
+	NuevoPMT->referencia=0;
+	//Entrada y salida en la cola 
+	Fifo(2,0);//elinamos la vieja tarea
+	Fifo(1,AuxPMT->nPagina);//actualizamos con la nueva
 }
 
 
