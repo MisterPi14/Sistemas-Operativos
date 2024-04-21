@@ -13,9 +13,10 @@
 #define nTareas 20
 #define LineasPorPagina 100
 //Paginacion por demanda
-#define nTiempos 5
-#define marcosPorPagina 3
-#define tareaEjecucion 4
+#define nTiempos 8
+#define marcosPorPagina 5
+#define tareaEjecucion 13
+#define tipoRemplazo "LRU"
 
 using namespace std;
 
@@ -87,6 +88,8 @@ int main(){
 	asignacionDelSo();
 	for(int i=0; i<marcosPorPagina;i++)cola[i]=-1;
 	paginacionPorDemanda();
+	printf("\n\tOprimir <ENTER> para ver las tablas MMT y JT, <Cualquiera> para salir");
+	char tecla;	tecla = _getch();	if(tecla == 13){system("cls");Seleccion();}
 }
 
 void Seleccion(){
@@ -96,7 +99,7 @@ void Seleccion(){
     do {
         tecla = _getch(); // Espera a que se presione una tecla sin esperar por Enter
         if (tecla == 77) { // Flecha derecha (código ASCII)
-            (op==2)?:op++;
+            (op==1)?:op++;
         } else if (tecla == 75 && op>=0 && op<3) { // Flecha izquierda (código ASCII)
             (op==0)?:op--;
         }
@@ -159,9 +162,7 @@ void Crear_JT(){
 			PJT->LocPMT=1010;
 			PJT->nPaginas = PJT->nLineas/LineasPorPagina;//el n paginas es la / de lineas sobre l00 en este ejemplo
 			PJT->nLineas%LineasPorPagina==0?:PJT->nPaginas++;//si la division no es exacta añade un espacio extra
-			for(int i=1; i<nTiempos; i++){
-				PJT->Secuencia[i]=0+rand()%PJT->nPaginas;
-			}
+			for(int i=1; i<nTiempos; i++){PJT->Secuencia[i]=0+rand()%PJT->nPaginas;}
 			PJT->Secuencia[0]=0;
 			PJT->sig=NULL;
 			QJT=PJT;
@@ -266,8 +267,12 @@ void Fifo(int,int);
 void eliminarHuecos();
 
 void paginacionPorDemanda(){
-	//swappingFIFO();
-	swappingLRU();
+	if(tipoRemplazo=="FIFO"){
+		swappingFIFO();
+	}
+	else if(tipoRemplazo=="LRU"){
+		swappingLRU();
+	}
 }
 
 void swappingFIFO(){
@@ -401,6 +406,7 @@ void swappingLRU(){
 		if(AuxPMT->estado==1){//si esta cargada en memoria fisica
 			AuxPMT->estado=1;
 			AuxPMT->referencia=1;
+			AuxPMT->contRef=0;
 			incrementoCR();
 			//Imprimir
 			imprimir(3);
@@ -462,12 +468,7 @@ void imprimir(int tabla){
 			printf("|%-12s | %-12s | %-12s|\n","No.Tarea","No.Lineas","Loc.PMT");
 			printf("--------------------------------------------\n");
 			while(AuxJT!=NULL){
-				printf("|%-12d | %-12d | %-12d| %-12d|",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT,AuxJT->nPaginas);
-				for(int i=0; i<nTiempos; i++){
-					printf("%d",AuxJT->Secuencia[i]);
-				}
-				printf("\n");
-				AuxJT=AuxJT->sig;
+				printf("|%-12d | %-12d | %-12d|",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT);
 			}
 			break;
 		case 2:
