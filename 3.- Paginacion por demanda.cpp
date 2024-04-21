@@ -34,7 +34,7 @@ void paginacionSimple();
 //Paginacion por demanda
 void paginacionPorDemanda();
 void algoritmoAdminMem();
-void swappingFIFO(PMT*);
+void swappingFIFO();
 
 int cola[marcosPorPagina];
 int fin=-1;
@@ -271,6 +271,11 @@ void paginacionPorDemanda(){
 }
 
 void algoritmoAdminMem(){
+	swappingFIFO();
+}
+
+void swappingFIFO(){
+	
 	int marcosLibres = marcosPorPagina;
 	for(int i=0; i<nTiempos; i++){
 		AuxPMT = PPMT[tareaEjecucion];//iniciando el el primer nodo
@@ -299,40 +304,30 @@ void algoritmoAdminMem(){
 				marcosLibres--;
 				Fifo(1,paginaActual);
 			}
-			else{
-				swappingFIFO(AuxPMT);
+			else{//si ya no quedan espacios y por tanto se aplica un swaping
+				int Candidata = cola[0];
+				NuevoPMT = PPMT[tareaEjecucion];
+				while(NuevoPMT->sig!=NULL){//Legando a la pagina que deseamos remplazar
+					if(NuevoPMT->nPagina==Candidata){break;}
+					NuevoPMT=NuevoPMT->sig;
+				}
+				//Tarea en transito
+				AuxPMT->LocMarco=NuevoPMT->LocMarco;
+				AuxPMT->estado=1;
+				AuxPMT->referencia=1;
+				//Tarea con mas tiempo en memoria
+				NuevoPMT->LocMarco=0;
+				NuevoPMT->estado=0;
+				NuevoPMT->referencia=0;
+				imprimir(2);
+				AuxPMT->referencia=0;
+				//Entrada y salida en la cola 
+				Fifo(2,0);//elinamos la vieja tarea
+				Fifo(1,AuxPMT->nPagina);//actualizamos con la nueva
 			}
 		}
-	}
-	/*
-	Fifo(1,6);
-	Fifo(1,8);
-	Fifo(1,5);
-	Fifo(2,0);*/
+	}	
 }
-
-void swappingFIFO(PMT *AuxPMT){
-	int Candidata = cola[0];
-	NuevoPMT = PPMT[tareaEjecucion];
-	while(NuevoPMT->sig!=NULL){//Legando a la pagina que deseamos remplazar
-		if(NuevoPMT->nPagina==Candidata){break;}
-		NuevoPMT=NuevoPMT->sig;
-	}
-	//Tarea en transito
-	AuxPMT->LocMarco=NuevoPMT->LocMarco;
-	AuxPMT->estado=1;
-	AuxPMT->referencia=1;
-	//Tarea con mas tiempo en memoria
-	NuevoPMT->LocMarco=0;
-	NuevoPMT->estado=0;
-	NuevoPMT->referencia=0;
-	imprimir(2);
-	AuxPMT->referencia=0;
-	//Entrada y salida en la cola 
-	Fifo(2,0);//elinamos la vieja tarea
-	Fifo(1,AuxPMT->nPagina);//actualizamos con la nueva
-}
-
 
 void Fifo(int ope,int pagina)
 {
@@ -389,6 +384,10 @@ void eliminarHuecos()
 	}
 }
 
+void swappingLRU(){
+	
+}
+
 
 void imprimir(int tabla){
 	switch(tabla){
@@ -440,7 +439,7 @@ void imprimir(int tabla){
 				printf("      -");for(int i=0; i<marcosPorPagina; i++){printf("-----");}
 				printf("\nCola: ");
 				for(int i=0; i<marcosPorPagina; i++){
-					printf("|%2c%d%1s",'P',cola[i],"");
+					printf("|%2c%d%1s",(cola[i]==-1)?' ':'P',(cola[i]==-1)?0:cola[i],"");
 				}
 				printf("|\n      -");for(int i=0; i<marcosPorPagina; i++){printf("-----");}
 			break;
