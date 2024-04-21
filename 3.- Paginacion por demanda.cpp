@@ -1,3 +1,4 @@
+//CODIGO ELABORADO POR EDGAR DIEGO PIÑA VARGAS IPN ESIME CU 2024 SISTEMAS OPERATIVOS
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -16,7 +17,7 @@
 #define nTiempos 8
 #define marcosPorPagina 5
 #define tareaEjecucion 13
-#define tipoRemplazo "LRU"
+#define tipoRemplazo "LRU"//Poner: FIFO o LRU para seleccionar el tipo de swapping
 
 using namespace std;
 
@@ -469,6 +470,12 @@ void imprimir(int tabla){
 			printf("--------------------------------------------\n");
 			while(AuxJT!=NULL){
 				printf("|%-12d | %-12d | %-12d|",AuxJT->nTarea,AuxJT->nLineas,AuxJT->LocPMT);
+				printf("Secuencia J%d: ",AuxJT->nTarea);
+				for(int i=0; i<nTiempos; i++){
+					printf("%d",AuxJT->Secuencia[i]);
+				}
+				printf("\n");
+				AuxJT=AuxJT->sig;
 			}
 			break;
 		case 2:
