@@ -34,7 +34,7 @@ void paginacionSimple();
 //Paginacion por demanda
 void paginacionPorDemanda();
 void algoritmoAdminMem();
-void swappingFIFO(PMT*,int);
+void swappingFIFO(PMT*);
 
 int cola[marcosPorPagina]={0};
 int fin=-1;
@@ -66,9 +66,18 @@ struct PMT{
 	PMT *sig;
 };
 
+struct PMTE{//PMTExecute -> pagina en ejecucion
+	int nPagina;
+	int LocMarco;
+	bool estado;
+	bool referencia;
+	bool modificacion;
+	JT *VinculoJT;
+	PMT *sig;};
+
 MMT *PMMT, *QMMT, *NuevoMMT, *AuxMMT;
 JT *PJT, *QJT, *NuevoJT, *AuxJT;
-PMT *PPMT[nTareas], *QPMT[nTareas], *NuevoPMT, *AuxPMT, *PMTE[nTiempos];
+PMT *PPMT[nTareas], *QPMT[nTareas], *NuevoPMT, *AuxPMT;
 
 int main(){
 	Crear_MMT();
@@ -253,10 +262,11 @@ void paginacionSimple(){
 
 void Fifo(int,int);
 void eliminarHuecos();
-void registroEjecucion(int);
 
 void paginacionPorDemanda(){
+	AuxPMT = PPMT[tareaEjecucion];//AuxPMT se queda con la tarea que le pedimos
 	algoritmoAdminMem();
+	//algoritmoFIFO(int cola[])
 	Seleccion();
 }
 
@@ -273,22 +283,22 @@ void algoritmoAdminMem(){
 		if(AuxPMT->estado==1){//si esta cargada en memoria fisica
 			AuxPMT->estado=1;
 			AuxPMT->referencia=1;
-			registroEjecucion(i);
+			//Imprimir
 			AuxPMT->referencia=0;
 		}
 		else{//Si esta en memoria virtual
 			if(marcosLibres>0){//Si aun quedan marcos
 				AuxPMT->estado=1;
 				AuxPMT->referencia=1;
-				AuxPMT->LocMarco=AuxMMT->LocInicio;
-				registroEjecucion(i);
+				//Imprimir
 				AuxPMT->referencia=0;
+				AuxPMT->LocMarco=AuxMMT->LocInicio;
 				AuxMMT=AuxMMT->sig;
 				marcosLibres--;
 				Fifo(1,paginaActual);
 			}
 			else{
-				swappingFIFO(AuxPMT,i);
+				swappingFIFO(AuxPMT);
 			}
 		}
 	}
@@ -299,7 +309,7 @@ void algoritmoAdminMem(){
 	Fifo(2,0);*/
 }
 
-void swappingFIFO(PMT *AuxPMT, int i){
+void swappingFIFO(PMT *AuxPMT){
 	int Candidata = cola[0];
 	NuevoPMT = PPMT[tareaEjecucion];
 	while(NuevoPMT->sig!=NULL){//Legando a la pagina que deseamos remplazar
@@ -320,14 +330,6 @@ void swappingFIFO(PMT *AuxPMT, int i){
 	Fifo(1,AuxPMT->nPagina);//actualizamos con la nueva
 }
 
-void registroEjecucion(int i){
-	PMTE[i] = (PMT*)malloc(sizeof(PMT));
-	PMTE[i]->nPagina=AuxPMT->nPagina;
-	PMTE[i]->LocMarco=AuxPMT->LocMarco;
-	PMTE[i]->modificacion=AuxPMT->modificacion;
-	PMTE[i]->referencia=AuxPMT->referencia;
-	PMTE[i]->estado=AuxPMT->estado;
-}
 
 void Fifo(int ope,int pagina)
 {
@@ -415,7 +417,7 @@ void imprimir(int tabla){
 			break;
 		case 2:
 			printf("-----TABLA DE MAPA DE PAGINAS-----\n\n");
-				//AuxPMT=PPMT[tareaEjecucion];
+				AuxPMT=PPMT[tareaEjecucion];
 				/////////////////////////////////////////////////////////////////////////////////////////////////////////
 				printf("           ");for(int i=0; i<nTiempos; i++){printf("-----");}
 				printf("-\nSecuencia: ");
@@ -426,11 +428,10 @@ void imprimir(int tabla){
 				////////////////////////////////////////////////////////////////////////////////////////////////////////
 				printf("\n\n-----------------------Mapa de pagina de J%d---------------------%s\n",tareaEjecucion,tareaEjecucion>8?"":"-");
 				printf("|   Pagina   |   Marco   |   Estado   | Referencia |Modificacion|\n");
-				int i=3;
-				//while(i<nTiempos){
-					printf("|%6d%6s|%-9d%s|%6d%6s|%6d%6s|%6d%6s|\n",PMTE[i]->nPagina,"",PMTE[i]->LocMarco,PrefijoMarco,PMTE[i]->estado,"",PMTE[i]->referencia,"",PMTE[i]->modificacion,"");
-					//i++;
-				//}
+				while(AuxPMT!=NULL){
+					printf("|%6d%6s|%-9d%s|%6d%6s|%6d%6s|%6d%6s|\n",AuxPMT->nPagina,"",AuxPMT->LocMarco,PrefijoMarco,AuxPMT->estado,"",AuxPMT->referencia,"",AuxPMT->modificacion,"");
+					AuxPMT=AuxPMT->sig;
+				}
 				printf("-----------------------------------------------------------------\n\n");
 				/////////////////////////////////////////////////////////////////////////////////////////////////////////
 				printf("      -");for(int i=0; i<marcosPorPagina; i++){printf("-----");}
