@@ -16,8 +16,8 @@
 //Paginacion por demanda
 #define nTiempos 8
 #define marcosPorPagina 5
-#define tareaEjecucion 13
 #define tipoRemplazo "LRU"//Poner: FIFO o LRU para seleccionar el tipo de swapping
+int tareaEjecucion;
 
 using namespace std;
 
@@ -37,6 +37,10 @@ void paginacionSimple();
 void paginacionPorDemanda();
 void swappingFIFO();
 void swappingLRU();
+//Planificadores de procesos
+void FCFS();
+void SJF();
+void porPrioridades();
 
 int cola[marcosPorPagina];
 int fin=-1;
@@ -76,11 +80,24 @@ struct PMTE{//PMTExecute -> pagina en ejecucion
 	bool referencia;
 	bool modificacion;
 	JT *VinculoJT;
-	PMT *sig;};
+	PMT *sig;
+};
+	
+struct PCB{
+	//int nTarea;//para identificador de proceso
+	int nPagina;// para identificador de proceso
+	int TiempoLlegada;
+	int CiclosCPU;
+	int Memoria;
+	bool TipoProceso;
+	int Archivos;
+	PCB *sig;
+};
 
 MMT *PMMT, *QMMT, *NuevoMMT, *AuxMMT;
 JT *PJT, *QJT, *NuevoJT, *AuxJT;
 PMT *PPMT[nTareas], *QPMT[nTareas], *NuevoPMT, *AuxPMT, *AuxPMT2, *Busqueda;
+PCB *PPCB, *QPCB, NPCB; 
 
 int main(){
 	Crear_MMT();
@@ -268,6 +285,8 @@ void Fifo(int,int);
 void eliminarHuecos();
 
 void paginacionPorDemanda(){
+	printf("\n\t-> Que tarea se desea ejecutar?: ");
+	scanf("%d",&tareaEjecucion);
 	if(tipoRemplazo=="FIFO"){
 		swappingFIFO();
 	}
