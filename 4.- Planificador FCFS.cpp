@@ -50,7 +50,7 @@ void CrearPCB(){
 		if(PPCB==NULL){
 			PPCB = (PCB*)malloc(sizeof(PCB));
 			
-			PPCB->nPagina=Secuencia[i];
+			PPCB->nPagina=Secuencia[0];
 			PPCB->TiempoLlegada=0;
 			PPCB->CiclosCPU=1+rand()%10;
 			PPCB->Memoria=1+rand()%51;
@@ -62,6 +62,13 @@ void CrearPCB(){
 		}
 		else{
 			AuxPCB = (PCB*)malloc(sizeof(PCB));
+			
+			AuxPCB->nPagina=Secuencia[i];
+			AuxPCB->TiempoLlegada=i;
+			AuxPCB->CiclosCPU=1+rand()%10;
+			AuxPCB->Memoria=1+rand()%51;
+			AuxPCB->TipoProceso=0+rand()%1;
+			AuxPCB->Archivos=0+rand()%11;
 			
 			AuxPCB->sig=NULL;
 			QPCB->sig=AuxPCB;
