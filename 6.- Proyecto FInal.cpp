@@ -6,6 +6,8 @@
 #define nTareas 5
 #define LineasPorPagina 100
 
+#define Tquantum 3
+
 using namespace std;
 
 struct PMT;
@@ -193,21 +195,73 @@ void Montar(){
 		AuxPCB=AuxPCB->sig;
 	}
 }
-/*
+
+void tranferirDatos(){
+	if(PPCB2==NULL){
+    	PPCB2 = (PCB*)malloc(sizeof(PCB));
+        PPCB2->CiclosCPU = AuxPCB->CiclosCPU;
+        PPCB2->CicSC = AuxPCB->CicSC;
+        PPCB2->DuracionSC = AuxPCB->DuracionSC;
+        PPCB2->Estado = AuxPCB->Estado;
+        PPCB2->IniSC = AuxPCB->IniSC;
+        PPCB2->Memoria = AuxPCB->Memoria;
+        PPCB2->nArchivos = AuxPCB->nArchivos;
+        PPCB2->nDispositivos = AuxPCB->nDispositivos;
+        PPCB2->nPagina = AuxPCB->nPagina;
+        PPCB2->nTarea = AuxPCB->nTarea;
+        PPCB2->TiempoLlegada = AuxPCB->TiempoLlegada;
+        PPCB2->TipoProceso = AuxPCB->TipoProceso;
+        PPCB2->TipoSolicitud = AuxPCB->TipoSolicitud;
+        PPCB2->sig = NULL;
+        QPCB2 = PPCB2;
+	}
+	else{
+		AuxPCB2 = (PCB*)malloc(sizeof(PCB));
+		AuxPCB2->CiclosCPU = AuxPCB->CiclosCPU;
+        AuxPCB2->CicSC = AuxPCB->CicSC;
+        AuxPCB2->DuracionSC = AuxPCB->DuracionSC;
+        AuxPCB2->Estado = AuxPCB->Estado;
+        AuxPCB2->IniSC = AuxPCB->IniSC;
+        AuxPCB2->Memoria = AuxPCB->Memoria;
+        AuxPCB2->nArchivos = AuxPCB->nArchivos;
+        AuxPCB2->nDispositivos = AuxPCB->nDispositivos;
+        AuxPCB2->nPagina = AuxPCB->nPagina;
+        AuxPCB2->nTarea = AuxPCB->nTarea;
+        AuxPCB2->TiempoLlegada = AuxPCB->TiempoLlegada;
+        AuxPCB2->TipoProceso = AuxPCB->TipoProceso;
+        AuxPCB2->TipoSolicitud = AuxPCB->TipoSolicitud;
+		AuxPCB2->sig = NULL;
+		QPCB2->sig = AuxPCB2;
+		QPCB2 = AuxPCB2;
+	}
+}
+
 void RoundRobin(){
 	Montar();
 	AuxPCB=PPCB;
 	while(AuxPCB!=NULL){
 		Imprimir(3);
+		int quantum = Tquantum;
 		AuxPCB->Estado=3;
-		while(AuxPCB->CiclosCPU>0){
+		while(AuxPCB->CiclosCPU>0 && quantum>0){
 			Imprimir(3);
 			AuxPCB->CiclosCPU--;
+			quantum--;
+		}
+		if(AuxPCB->CiclosCPU>0){
+			Imprimir(3);
+			AuxPCB->Estado=4;
+			Imprimir(3);
+	        tranferirDatos();
+			Imprimir(4);
+		}
+		else{
+			
 		}
 		AuxPCB=AuxPCB->sig;
 	}
-}*/
-
+}
+/*
 void RoundRobin() {
     int quantum = 3; // Definir el quantum de tiempo para el Round Robin.
     Montar();
@@ -217,7 +271,6 @@ void RoundRobin() {
         if (AuxPCB->Estado == 2) { // Verificar que el proceso está en estado listo.
             Imprimir(3);
             AuxPCB->Estado = 3; // Cambiar el estado a en ejecución.
-            AuxPCB->CiclosCPU = 2;
             int quantumActual = quantum;
             
             while (quantumActual > 0 && AuxPCB->CiclosCPU > 0) {
@@ -227,7 +280,7 @@ void RoundRobin() {
             }
 
             if (AuxPCB->CiclosCPU > 0) {
-                AuxPCB->Estado = 2; // Volver a poner el proceso en estado listo si aún tiene ciclos de CPU.
+                AuxPCB->Estado = 4; // Volver a poner el proceso en estado listo si aún tiene ciclos de CPU.
                 // Mover el proceso al final de la cola.
                 if (AuxPCB->sig != NULL) {
                     QPCB->sig = AuxPCB;
@@ -238,15 +291,14 @@ void RoundRobin() {
                     break; // Si es el último proceso, salir del bucle.
                 }
             } else {
-                AuxPCB->Estado = 4; // Cambiar el estado a terminado si no tiene más ciclos de CPU.
+                AuxPCB->Estado = 5; // Cambiar el estado a terminado si no tiene más ciclos de CPU.
                 AuxPCB = AuxPCB->sig;
             }
         } else {
             AuxPCB = AuxPCB->sig; // Pasar al siguiente proceso.
         }
     }
-    Imprimir(3);
-}
+}*/
 
 void Imprimir(int tabla){
 	switch(tabla){
@@ -277,9 +329,8 @@ void Imprimir(int tabla){
 			break;
 		case 3:
 			    system("cls");
-			    char Tipo[20];
 			    printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
-			    Impresion = PPCB;
+			    Impresion = PPCB;	char Tipo[20];
 			    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------------------------");
 			    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%7s|%s%7s|%s%6s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
 				"Ciclos","","Estados","","Memoria","","CPU o E/s","","nDisp","","nArch","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","");
@@ -301,7 +352,31 @@ void Imprimir(int tabla){
 			    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 			    system("pause");
 			break;
-
+		case 4:
+			    //system("cls");
+			    printf("\n-----(PCB peq) BLOQUE DE CONTROL DE PROCESOS-----");
+			    Impresion = PPCB2;
+			    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------------------------");
+			    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%7s|%s%7s|%s%6s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
+				"Ciclos","","Estados","","Memoria","","CPU o E/s","","nDisp","","nArch","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","");
+			    printf("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
+			    while(Impresion != NULL){
+			        if(Impresion->TipoProceso == 1){
+			            snprintf(Tipo, sizeof(Tipo), "CPU");
+			        } else if(Impresion->TipoProceso == 2){
+			            snprintf(Tipo, sizeof(Tipo), "E");
+			        } else if(Impresion->TipoProceso == 3){
+			            snprintf(Tipo, sizeof(Tipo), "S");
+			        }
+			        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6d%6s|%6d%6s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|","",Impresion->nTarea,
+					Impresion->nPagina,(Impresion->nTarea>=10)?"  ":"   ",Impresion->TiempoLlegada,"",Impresion->CiclosCPU,"",
+					Impresion->Estado,"",Impresion->Memoria,"",Tipo,"",Impresion->nDispositivos,"",Impresion->nArchivos,"",
+					(Impresion->TipoSolicitud==0)?"Usuario":"Sistema","",Impresion->CicSC,"",Impresion->IniSC,"",Impresion->DuracionSC,"");
+			        Impresion = Impresion->sig;
+			    }
+			    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+			    system("pause");
+			break;
 	}
 }
 
