@@ -240,70 +240,59 @@ void Bloc_de_Cont(void){
 
 void Ver_Bloc_de_Cont(void){
 	system("cls");
-	cout<<"\nBloque de control de procesos (PCB)\n";
-	cout<<"\nProceso | T.Llegada | Ciclos | Edo | Memoria | CPU/E/S | Tipo     | CicSC | IniSC | DuracionSC\n";
-	Auxc=Pc;
-	do{
-		if(Auxc->masc==0){
-			cout<<"J"<<Auxc->ProcJ<<"P"<<Auxc->ProcP<<"    | ";
-			cout<<setw(9)<<left<<Auxc->Tiempo<<"| ";
-			cout<<setw(6)<<left<<Auxc->Ciclo<<"| ";
-			cout<<setw(4)<<left<<Auxc->Edo<<"| ";
-			cout<<setw(8)<<left<<Auxc->Mem<<"| ";
-			if(Auxc->TipoP==0){
-				cout<<setw(7)<<left<<"CPU | ";
-			}else if(Auxc->TipoP==1){
-				cout<<setw(7)<<left<<"S   | ";
-			}else if(Auxc->TipoP==2){
-				cout<<setw(7)<<left<<"E   | ";
-			}
-			if(Auxc->Tipo==0){
-				cout<<setw(8)<<left<<"Usuario | ";
-			}else if(Auxc->Tipo==1){
-				cout<<setw(8)<<left<<"Sistema | ";
-			}
-			cout<<setw(5)<<left<<Auxc->CicloSC<<"| ";
-			cout<<setw(5)<<left<<Auxc->IniSC<<"| ";
-			cout<<Auxc->DuracionSC<<"\n";
+    printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
+    Auxc=Pc;	char Tipo[20];
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
+	"Ciclos","","Estados","","Memoria","","CPU o E/s","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","");
+    printf("------------------------------------------------------------------------------------------------------------------------------------");
+    while(Auxc != NULL){
+    	if(Auxc->masc==0){
+	    	if(Auxc->TipoP == 0){
+	            snprintf(Tipo, sizeof(Tipo), "CPU");
+	        } else if(Auxc->TipoP == 1){
+	            snprintf(Tipo, sizeof(Tipo), "E");
+	        } else if(Auxc->TipoP == 2){
+	            snprintf(Tipo, sizeof(Tipo), "S");
+	        }
+	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|","",Auxc->ProcJ,
+			Auxc->ProcP,(Auxc->ProcP>=10||Auxc->ProcJ>=10)?"  ":"   ",Auxc->Tiempo,"",Auxc->Ciclo,"",
+			Auxc->Edo,"",Auxc->Mem,"",Tipo,"",(Auxc->Tipo==0)?"Usuario":"Sistema","",
+			Auxc->CicloSC,"",Auxc->IniSC,"",Auxc->DuracionSC,"");
 		}
 		Auxc=Auxc->sig;
-	}while(Auxc!=NULL);
-	
+    }
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
 	Ver_Bloc_de_Cont_Sem();
+}
 
 void Ver_Bloc_de_Cont_Sem(void){
-	cout<<"\nPCB semaforo\n";
-	cout<<"\nProceso|T.Llegada|Ciclos|Edo|Memoria|CPU/E/S|Tipo     |CicSC|IniSC|DuracionSC\n";
-	Auxc=Pc;
-	do{
-		if(Auxc->masc==1){
-			cout<<"J"<<Auxc->ProcJ<<"P"<<Auxc->ProcP<<"    | ";
-			cout<<setw(9)<<left<<Auxc->Tiempo<<"| ";
-			cout<<setw(6)<<left<<Auxc->Ciclo<<"| ";
-			cout<<setw(4)<<left<<Auxc->Edo<<"| ";
-			cout<<setw(8)<<left<<Auxc->Mem<<"| ";
-			if(Auxc->TipoP==0){
-				cout<<setw(7)<<left<<"CPU | ";
-			}else if(Auxc->TipoP==1){
-				cout<<setw(7)<<left<<"S   | ";
-			}else if(Auxc->TipoP==2){
-				cout<<setw(7)<<left<<"E   | ";
-			}
-			if(Auxc->Tipo==0){
-				cout<<setw(8)<<left<<"Usuario | ";
-			}else if(Auxc->Tipo==1){
-				cout<<setw(8)<<left<<"Sistema | ";
-			}
-			cout<<setw(5)<<left<<Auxc->CicloSC<<"| ";
-			cout<<setw(5)<<left<<Auxc->IniSC<<"| ";
-			cout<<Auxc->DuracionSC<<"\n";
+    printf("\n-----(PCB) Semaforo-----");
+    Auxc=Pc;	char Tipo[20];
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
+	"Ciclos","","Estados","","Memoria","","CPU o E/s","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","");
+    printf("------------------------------------------------------------------------------------------------------------------------------------");
+    while(Auxc != NULL){
+    	if(Auxc->masc==1){
+	    	if(Auxc->TipoP == 0){
+	            snprintf(Tipo, sizeof(Tipo), "CPU");
+	        } else if(Auxc->TipoP == 1){
+	            snprintf(Tipo, sizeof(Tipo), "E");
+	        } else if(Auxc->TipoP == 2){
+	            snprintf(Tipo, sizeof(Tipo), "S");
+	        }
+	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|","",Auxc->ProcJ,
+			Auxc->ProcP,(Auxc->ProcP>=10||Auxc->ProcJ>=10)?"  ":"   ",Auxc->Tiempo,"",Auxc->Ciclo,"",
+			Auxc->Edo,"",Auxc->Mem,"",Tipo,"",(Auxc->Tipo==0)?"Usuario":"Sistema","",
+			Auxc->CicloSC,"",Auxc->IniSC,"",Auxc->DuracionSC,"");
 		}
 		Auxc=Auxc->sig;
-	}while(Auxc!=NULL);
-	
+    }
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
-	system("pause");
+	system("pause");;
 }
 
 void RR(void){
