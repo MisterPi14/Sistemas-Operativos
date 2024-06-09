@@ -41,12 +41,14 @@ struct nodo_MPT{
 
 struct nodo_BdC{
 	int ProcJ, ProcP, Tiempo, Ciclo, Edo, Mem, TipoP, Tipo, CicloSC, IniSC, DuracionSC, masc;
+	bool Wait,Signal;
 	struct nodo_BdC*sig;
 };
 
 nodo_TT *Pt, *Qt, *Nuevot, *Auxt;
 nodo_MPT *Pp, *Qp, *Nuevop, *Auxp;
 nodo_BdC *Pc, *Qc, *Nuevoc, *Auxc, *Pivotec;
+int semaforo=1;
 
 int main(){
 	Pt=NULL;
@@ -189,7 +191,7 @@ void Bloc_de_Cont(void){
 				Pc->Tipo=0+rand()%2;
 				Pc->CicloSC=0;
 				aux=Pc->Ciclo+1;
-				Pc->IniSC=0+rand()%aux;
+				(Pc->TipoP==0)?Pc->IniSC=0:Pc->IniSC=0+rand()%aux;
 				if(Pc->IniSC==0){
 					Pc->DuracionSC=0;
 				}else if(Pc->IniSC==aux-1){
@@ -215,7 +217,7 @@ void Bloc_de_Cont(void){
 				Nuevoc->Tipo=0+rand()%2;
 				Nuevoc->CicloSC=0;
 				aux=Nuevoc->Ciclo+1;
-				Nuevoc->IniSC=0+rand()%aux;
+				(Nuevoc->TipoP==0)?Nuevoc->IniSC=0:Nuevoc->IniSC=0+rand()%aux;
 				if(Nuevoc->IniSC==0){
 					Nuevoc->DuracionSC=0;
 				}else if(Nuevoc->IniSC==aux-1){
@@ -270,10 +272,11 @@ void Ver_Bloc_de_Cont(void){
 void Ver_Bloc_de_Cont_Sem(void){
     printf("\n-----(PCB) Semaforo-----");
     Auxc=Pc;	char Tipo[20];
-    printf("\n------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
-	"Ciclos","","Estados","","Memoria","","CPU o E/s","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","");
-    printf("------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",semaforo);
+    printf("\n----------------------------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
+	"Ciclos","","Estados","","Memoria","","CPU o E/s","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","","Wait(S)","","Signal(S)","");
+    printf("----------------------------------------------------------------------------------------------------------------------------------------------------------");
     while(Auxc != NULL){
     	if(Auxc->masc==1){
 	    	if(Auxc->TipoP == 0){
@@ -283,14 +286,14 @@ void Ver_Bloc_de_Cont_Sem(void){
 	        } else if(Auxc->TipoP == 2){
 	            snprintf(Tipo, sizeof(Tipo), "S");
 	        }
-	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|","",Auxc->ProcJ,
+	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|","",Auxc->ProcJ,
 			Auxc->ProcP,(Auxc->ProcP>=10||Auxc->ProcJ>=10)?"  ":"   ",Auxc->Tiempo,"",Auxc->Ciclo,"",
 			Auxc->Edo,"",Auxc->Mem,"",Tipo,"",(Auxc->Tipo==0)?"Usuario":"Sistema","",
-			Auxc->CicloSC,"",Auxc->IniSC,"",Auxc->DuracionSC,"");
+			Auxc->CicloSC,"",Auxc->IniSC,"",Auxc->DuracionSC,"",Auxc->Wait,"",Auxc->Signal,"");
 		}
 		Auxc=Auxc->sig;
     }
-    printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");	
+    printf("\n----------------------------------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
 	system("pause");;
 }
