@@ -345,6 +345,16 @@ void RR(void){
 				break;
 			}
 		}
+		
+		if(Auxc->masc==1&&Auxc->Edo!=5){
+			for(int i=0; i<Auxc->DuracionSC; i++){
+				Auxc->Ciclo--;
+				Ver_Bloc_de_Cont();	//Mostrar la tablas
+			}
+			Auxc->Edo=5;
+			Auxc->masc=0;
+		}
+		
 		Auxc=Auxc->sig;
 		if(Auxc==NULL){
 			Auxc=Pc;

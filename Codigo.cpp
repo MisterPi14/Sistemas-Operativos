@@ -1,368 +1,388 @@
-#include<iostream>
-#include<conio.h>
-#include<stdlib.h>
-#include<time.h>
-#include<windows.h>
+#include <iostream>
+#include <conio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <windows.h>
 #include <iomanip>
-
-#define nTareas 10
-#define LineasPorPagina 100
+#include <thread>
+#include <mutex>
+#define NT 10
+#define LinCod 100
 #define Arr 8
-#define Tquantum 5
+#define Quan 5
 
 using namespace std;
 
-void Crear_JT();
-void Crear_PMT();
-void Imprimir(int tabla);
-void CrearPCB();
-void RoundRobin();
+void crear_TT(void);
+void crear_MPT(void);
+void ver_MPT(void);
+void Bloc_de_Cont(void);
+void Ver_Bloc_de_Cont(void);
+void Ver_Bloc_de_Cont_Sem(void);
+void RR(void);
+void gestionar_seccion_critica(struct nodo_BdC *Auxc); // Declaración correcta de la función
 
-string espaciar(int tamanio, int valor){
+string espaciar(int tamanio, int valor) {
     int espacio = 0;
     string texto = "";
-    
+
     espacio = valor - tamanio;
-    
-    for(int i = 0; i < espacio; i++){
+
+    for (int i = 0; i < espacio; i++) {
         texto = texto + " ";
     }
     return texto;
 }
 
-struct JT {
-    int nTarea, nLineas, LocPMT, totalP, Sec[Arr];
-    struct JT* sig;
+struct nodo_TT {
+    int NoTarea, tamanio, LocPMT, totalP, Sec[Arr];
+    struct nodo_TT* sig;
 };
 
-struct PMT {
-    int nPagina, nTarea, ejecutar, ContS;
-    struct PMT* sig;
+struct nodo_MPT {
+    int NoPag, NoT, Celex, ContS;
+    struct nodo_MPT* sig;
 };
 
-struct PCB {
-    int nTarea, nPagina, TiempoLlegada, CiclosCPU, Estado, Memoria, TipoProceso, TipoSolicitud, CicSC, IniSC, DuracionSC, masc;
-    struct PCB* sig;
+struct nodo_BdC {
+    int ProcJ, ProcP, Tiempo, Ciclo, Edo, Mem, TipoP, Tipo, CicloSC, IniSC, DuracionSC, masc;
+    bool Wait, Signal;
+    struct nodo_BdC* sig;
 };
 
-JT *PJT, *QJT, *NuevoJT, *AuxJT;
-PMT *PPMT, *QPMT, *NuevoPMT, *AuxPMT;
-PCB *PPCB, *QPCB, *NuevoPCB, *AuxPCB, *PPCB2;
+nodo_TT* Pt, * Qt, * Nuevot, * Auxt;
+nodo_MPT* Pp, * Qp, * Nuevop, * Auxp;
+nodo_BdC* Pc, * Qc, * Nuevoc, * Auxc, * Auxc2, * Pivotec, * Impresion;
+int semaforo = 1;
+float ContadorGlobal = 0;
+mutex mtx;
 
-int main(){
-    PJT = NULL;
-    QJT = NULL;
+int main() {
+    Pt = NULL;
+    Qt = NULL;
 
-    Crear_JT();
-    Crear_PMT();
-    Imprimir(2);
-    CrearPCB();
-    RoundRobin();
+    crear_TT();
+    crear_MPT();
+    ver_MPT();
+    Bloc_de_Cont();
+    RR();
     getch();
     return 0;
 }
 
-void Crear_JT() {
+void crear_TT(void) {
     int coeficiente, residuo;
     int puntero = 10;
     srand(time(NULL));
-    for(int i = 1; i <= nTareas; i++) {
-        if(PJT == NULL) {
-            PJT = (JT*)malloc(sizeof(JT));
-            PJT->nTarea = i;
-            PJT->nLineas = 100 + rand()%500;
-            PJT->LocPMT = puntero;
+    for (int i = 1; i <= NT; i++) {
+        if (Pt == NULL) {
+            Pt = (nodo_TT*)malloc(sizeof(nodo_TT));
+            Pt->NoTarea = i;
+            Pt->tamanio = 100 + rand() % 500;
+            Pt->LocPMT = puntero;
             puntero++;
-            coeficiente = PJT->nLineas / LineasPorPagina;
-            residuo = PJT->nLineas % LineasPorPagina;
-            PJT->totalP = residuo > 0 ? coeficiente + 1 : coeficiente;
-            PJT->Sec[0] = 0;
-            for(int k = 1; k < Arr; k++) {
-                PJT->Sec[k] = 0 + rand()%PJT->totalP;
+            coeficiente = Pt->tamanio / LinCod;
+            residuo = Pt->tamanio % LinCod;
+            if (residuo > 0) {
+                Pt->totalP = coeficiente + 1;
             }
-            PJT->sig = NULL;
-            QJT = PJT;
-        } else {
-            NuevoJT = (JT*)malloc(sizeof(JT));
-            NuevoJT->nTarea = i;
-            NuevoJT->nLineas = 100 + rand()%500;
-            NuevoJT->LocPMT = puntero;
+            else {
+                Pt->totalP = coeficiente;
+            }
+            Pt->Sec[0] = 0;
+            for (int k = 1; k < Arr; k++) {
+                Pt->Sec[k] = 0 + rand() % Pt->totalP;
+            }
+            Pt->sig = NULL;
+            Qt = Pt;
+        }
+        else {
+            Nuevot = (nodo_TT*)malloc(sizeof(nodo_TT));
+            Nuevot->NoTarea = i;
+            Nuevot->tamanio = 100 + rand() % 500;
+            Nuevot->LocPMT = puntero;
             puntero++;
-            coeficiente = NuevoJT->nLineas / LineasPorPagina;
-            residuo = NuevoJT->nLineas % LineasPorPagina;
-            NuevoJT->totalP = residuo > 0 ? coeficiente + 1 : coeficiente;
-            NuevoJT->Sec[0] = 0;
-            for(int k = 1; k < Arr; k++) {
-                NuevoJT->Sec[k] = 0 + rand()%NuevoJT->totalP;
+            coeficiente = Nuevot->tamanio / LinCod;
+            residuo = Nuevot->tamanio % LinCod;
+            if (residuo > 0) {
+                Nuevot->totalP = coeficiente + 1;
             }
-            NuevoJT->sig = NULL;
-            QJT->sig = NuevoJT;
-            QJT = NuevoJT;
+            else {
+                Nuevot->totalP = coeficiente;
+            }
+            Nuevot->Sec[0] = 0;
+            for (int k = 1; k < Arr; k++) {
+                Nuevot->Sec[k] = 0 + rand() % Nuevot->totalP;
+            }
+            Nuevot->sig = NULL;
+            Qt->sig = Nuevot;
+            Qt = Nuevot;
         }
     }
 }
 
-void Crear_PMT() {
-    AuxJT = PJT;
+void crear_MPT(void) {
+    Auxt = Pt;
     int contador = 0;
     srand(time(NULL));
-    for(int i = 1; i <= nTareas; i++) {
-        for(int j = 0; j < AuxJT->totalP; j++) {
-            if(PPMT == NULL) {
-                PPMT = (PMT*)malloc(sizeof(PMT));
-                PPMT->nTarea = AuxJT->nTarea;
-                PPMT->nPagina = j;
-                PPMT->ejecutar = 0 + rand()%2;
-                if(PPMT->ejecutar == 1) {
+    for (int i = 1; i <= NT; i++) {
+        for (int j = 0; j < Auxt->totalP; j++) {
+            if (Pp == NULL) {
+                Pp = (nodo_MPT*)malloc(sizeof(nodo_MPT));
+                Pp->NoT = Auxt->NoTarea;
+                Pp->NoPag = j;
+                Pp->Celex = 0 + rand() % 2;
+                if (Pp->Celex == 1) {
                     contador++;
                 }
-                PPMT->sig = NULL;
-                QPMT = PPMT;
-            } else {
-                NuevoPMT = (PMT*)malloc(sizeof(PMT));
-                NuevoPMT->nTarea = AuxJT->nTarea;
-                NuevoPMT->nPagina = j;
-                NuevoPMT->ejecutar = 0 + rand()%2;
-                if(NuevoPMT->ejecutar == 1) {
+                Pp->sig = NULL;
+                Qp = Pp;
+            }
+            else {
+                Nuevop = (nodo_MPT*)malloc(sizeof(nodo_MPT));
+                Nuevop->NoT = Auxt->NoTarea;
+                Nuevop->NoPag = j;
+                Nuevop->Celex = 0 + rand() % 2;
+                if (Nuevop->Celex == 1) {
                     contador++;
                 }
-                if(j == (AuxJT->totalP) - 1) {
-                    NuevoPMT->ContS = contador;
+                if (j == (Auxt->totalP) - 1) {
+                    Nuevop->ContS = contador;
                 }
-                NuevoPMT->sig = NULL;
-                QPMT->sig = NuevoPMT;
-                QPMT = NuevoPMT;
+                Nuevop->sig = NULL;
+                Qp->sig = Nuevop;
+                Qp = Nuevop;
             }
         }
         contador = 0;
-        AuxJT = AuxJT->sig;
+        Auxt = Auxt->sig;
     }
     cout << "\nTABLAS DE MAPA DE PAGINAS\n";
 }
 
-void Imprimir(int tabla) {
-    switch(tabla) {
-        case 1:
-            cout << "-----TABLA DE TAREAS-----\n\n";
-            AuxJT = (JT*)malloc(sizeof(JT));
-            AuxJT = PJT;
-            cout << "|No.Tarea    | No.Lineas  | Loc.PMT    |\n";
-            cout << "----------------------------------------\n";
-            while(AuxJT != NULL) {
-                cout << "|" << setw(10) << AuxJT->nTarea << " | " << setw(10) << AuxJT->nLineas << " | " << setw(10) << AuxJT->LocPMT << " |\n";
-                AuxJT = AuxJT->sig;
+void ver_MPT(void) {
+    int total = 0;
+    Auxt = Pt;
+    Auxp = Pp;
+    for (int i = 1; i <= NT; i++) {
+        cout << "Tarea [" << Auxt->NoTarea << "]\n";
+        for (int j = 0; j < Auxt->totalP; j++) {
+            cout << "J" << Auxp->NoT << "P" << Auxp->NoPag << " |   ";
+            cout << Auxp->Celex << "\n";
+            if (j == (Auxt->totalP) - 1) {
+                cout << "Numero de Selecciones: " << Auxp->ContS << "\n\n";
             }
-            break;
-        case 2:
-            cout << "\n-----(PMT)TABLA DE MAPA DE PAGINAS-----\n";
-            AuxJT = PJT;
-            AuxPMT = PPMT;
-            for(int i = 1; i <= nTareas; i++) {
-                cout << "\n\n---Mapa de pagina de J" << AuxJT->nTarea << "---\n";
-                cout << "|   Pagina   | Seleccion  |\n";
-                while(AuxPMT != NULL) {
-                    if(AuxPMT->nTarea == AuxJT->nTarea) {
-                        cout << "|" << setw(10) << AuxPMT->nPagina << " | " << setw(10) << AuxPMT->ejecutar << " |\n";
-                        AuxPMT = AuxPMT->sig;
-                    } else {
-                        break;
-                    }
-                }
-                AuxJT = AuxJT->sig;
-            }
-            cout << "---------------------------\n";
-            break;
+            total = total + Auxp->ContS;
+            Auxp = Auxp->sig;
+        }
+        Auxt = Auxt->sig;
     }
+    cout << "Total = " << total << "\n";
+    system("pause");
 }
 
-void CrearPCB() {
+void Bloc_de_Cont(void) {
     int aux;
     srand(time(NULL));
     int T = 0;
-    AuxPMT = PPMT;
+    Auxp = Pp;
     do {
-        if(AuxPMT->ejecutar == 1) {
-            if(PPCB == NULL) {
-                PPCB = (PCB*)malloc(sizeof(PCB));
-                PPCB->nTarea = AuxPMT->nTarea;
-                PPCB->nPagina = AuxPMT->nPagina;
-                PPCB->TiempoLlegada = T;
-                PPCB->CiclosCPU = 2 + rand()%18;
-                PPCB->Estado = 1;
-                PPCB->Memoria = 10 + rand()%111;
-                PPCB->TipoProceso = 0 + rand()%3;
-                PPCB->TipoSolicitud = 0 + rand()%2;
-                PPCB->CicSC = 0;
-                aux = PPCB->CiclosCPU + 1;
-                PPCB->IniSC = 0 + rand()%aux;
-                if(PPCB->IniSC == 0) {
-                    PPCB->DuracionSC = 0;
-                } else if(PPCB->IniSC == aux-1) {
-                    PPCB->DuracionSC = 1;
-                } else if(PPCB->IniSC == aux-2) {
-                    PPCB->DuracionSC = 1 + rand()%2;
-                } else {
-                    PPCB->DuracionSC = 1 + rand()%3;
+        if (Auxp->Celex == 1) {
+            if (Pc == NULL) {
+                Pc = (nodo_BdC*)malloc(sizeof(nodo_BdC));
+                Pc->ProcJ = Auxp->NoT;
+                Pc->ProcP = Auxp->NoPag;
+                Pc->Tiempo = T;
+                Pc->Ciclo = 2 + rand() % 18;
+                Pc->Edo = 1;
+                Pc->Mem = 10 + rand() % 111;
+                Pc->TipoP = 0 + rand() % 3;
+                Pc->Tipo = 0 + rand() % 2;
+                Pc->CicloSC = 0;
+                aux = Pc->Ciclo + 1;
+                (Pc->TipoP == 0) ? Pc->IniSC = 0 : Pc->IniSC = 0 + rand() % aux;
+                if (Pc->IniSC == 0) {
+                    Pc->DuracionSC = 0;
                 }
-                PPCB->masc = 0;
-                PPCB->sig = NULL;
-                QPCB = PPCB;
-            } else {
-                NuevoPCB = (PCB*)malloc(sizeof(PCB));
-                NuevoPCB->nTarea = AuxPMT->nTarea;
-                NuevoPCB->nPagina = AuxPMT->nPagina;
-                NuevoPCB->TiempoLlegada = T;
-                NuevoPCB->CiclosCPU = 2 + rand()%18;
-                NuevoPCB->Estado = 1;
-                NuevoPCB->Memoria = 10 + rand()%111;
-                NuevoPCB->TipoProceso = 0 + rand()%3;
-                NuevoPCB->TipoSolicitud = 0 + rand()%2;
-                NuevoPCB->CicSC = 0;
-                aux = NuevoPCB->CiclosCPU + 1;
-                NuevoPCB->IniSC = 0 + rand()%aux;
-                if(NuevoPCB->IniSC == 0) {
-                    NuevoPCB->DuracionSC = 0;
-                } else if(NuevoPCB->IniSC == aux-1) {
-                    NuevoPCB->DuracionSC = 1;
-                } else if(NuevoPCB->IniSC == aux-2) {
-                    NuevoPCB->DuracionSC = 1 + rand()%2;
-                } else {
-                    NuevoPCB->DuracionSC = 1 + rand()%3;
+                else if (Pc->IniSC == aux - 1) {
+                    Pc->DuracionSC = 1;
                 }
-                NuevoPCB->masc = 0;
-                QPCB->sig = NuevoPCB;
-                QPCB = NuevoPCB;
+                else if (Pc->IniSC == aux - 2) {
+                    Pc->DuracionSC = 1 + rand() % 2;
+                }
+                else {
+                    Pc->DuracionSC = 1 + rand() % 3;
+                }
+                Pc->masc = 0;
+                Pc->Signal = 0;
+                Pc->Wait = 0;
+                ContadorGlobal++;
+                Pc->sig = NULL;
+                Qc = Pc;
+            }
+            else {
+                Nuevoc = (nodo_BdC*)malloc(sizeof(nodo_BdC));
+                Nuevoc->ProcJ = Auxp->NoT;
+                Nuevoc->ProcP = Auxp->NoPag;
+                Nuevoc->Tiempo = T;
+                Nuevoc->Ciclo = 2 + rand() % 18;
+                Nuevoc->Edo = 1;
+                Nuevoc->Mem = 10 + rand() % 111;
+                Nuevoc->TipoP = 0 + rand() % 3;
+                Nuevoc->Tipo = 0 + rand() % 2;
+                Nuevoc->CicloSC = 0;
+                aux = Nuevoc->Ciclo + 1;
+                (Nuevoc->TipoP == 0) ? Nuevoc->IniSC = 0 : Nuevoc->IniSC = 0 + rand() % aux;
+                if (Nuevoc->IniSC == 0) {
+                    Nuevoc->DuracionSC = 0;
+                }
+                else if (Nuevoc->IniSC == aux - 1) {
+                    Nuevoc->DuracionSC = 1;
+                }
+                else if (Nuevoc->IniSC == aux - 2) {
+                    Nuevoc->DuracionSC = 1 + rand() % 2;
+                }
+                else {
+                    Nuevoc->DuracionSC = 1 + rand() % 3;
+                }
+                Nuevoc->masc = 0;
+                Nuevoc->Signal = 0;
+                Nuevoc->Wait = 0;
+                ContadorGlobal++;
+                Nuevoc->sig = NULL;
+                Qc->sig = Nuevoc;
+                Qc = Nuevoc;
             }
             T++;
         }
-        AuxPMT = AuxPMT->sig;
-    } while(AuxPMT != NULL);
-    Imprimir(3);
-}  
+        Auxp = Auxp->sig;
+    } while (Auxp != NULL);
+    Ver_Bloc_de_Cont();
+}
 
-void Ver_Bloc_de_Cont() {
+void Ver_Bloc_de_Cont(void) {
     system("cls");
-    cout << "\nBloque de control de procesos (PCB)\n";
-    cout << "\nProceso | T.Llegada | Ciclos | Edo | Memoria | CPU/E/S | Tipo     | CicSC | IniSC | DuracionSC\n";
-    AuxPCB = PPCB;
-    do {
-        if(AuxPCB->masc == 0) {
-            cout << "J" << AuxPCB->nTarea << "P" << AuxPCB->nPagina << "    | ";
-            cout << setw(9) << left << AuxPCB->TiempoLlegada << "| ";
-            cout << setw(6) << left << AuxPCB->CiclosCPU << "| ";
-            cout << setw(4) << left << AuxPCB->Estado << "| ";
-            cout << setw(8) << left << AuxPCB->Memoria << "| ";
-            if(AuxPCB->TipoProceso == 0) {
-                cout << setw(7) << left << "CPU | ";
-            } else if(AuxPCB->TipoProceso == 1) {
-                cout << setw(7) << left << "S   | ";
-            } else if(AuxPCB->TipoProceso == 2) {
-                cout << setw(7) << left << "E   | ";
+    printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
+    Impresion = Pc; char Tipo[20];
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|\n", "Proceso", "", "T-Llegada", "",
+        "Ciclos", "", "Estados", "", "Memoria", "", "CPU o E/s", "", "TipoSol", "", "Ciclos SC", "", "Inicio SC", "", "DuracionSC", "");
+    printf("------------------------------------------------------------------------------------------------------------------------------------");
+    while (Impresion != NULL) {
+        if (Impresion->masc == 0) {
+            if (Impresion->TipoP == 0) {
+                snprintf(Tipo, sizeof(Tipo), "CPU");
             }
-            if(AuxPCB->TipoSolicitud == 0) {
-                cout << setw(8) << left << "Usuario | ";
-            } else if(AuxPCB->TipoSolicitud == 1) {
-                cout << setw(8) << left << "Sistema | ";
+            else if (Impresion->TipoP == 1) {
+                snprintf(Tipo, sizeof(Tipo), "E");
             }
-            cout << setw(5) << left << AuxPCB->CicSC << "| ";
-            cout << setw(5) << left << AuxPCB->IniSC << "| ";
-            cout << AuxPCB->DuracionSC << "\n";
+            else if (Impresion->TipoP == 2) {
+                snprintf(Tipo, sizeof(Tipo), "S");
+            }
+            printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|", "", Impresion->ProcJ,
+                Impresion->ProcP, (Impresion->ProcP >= 10 || Impresion->ProcJ >= 10) ? "  " : "   ", Impresion->Tiempo, "", Impresion->Ciclo, "",
+                Impresion->Edo, "", Impresion->Mem, "", Tipo, "", (Impresion->Tipo == 0) ? "Usuario" : "Sistema", "",
+                Impresion->CicloSC, "", Impresion->IniSC, "", Impresion->DuracionSC, "");
         }
-        AuxPCB = AuxPCB->sig;
-    } while(AuxPCB != NULL);
-    
+        Impresion = Impresion->sig;
+    }
+    printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");
     cout << "\n";
     Ver_Bloc_de_Cont_Sem();
 }
 
-void Ver_Bloc_de_Cont_Sem() {
-    cout << "\nPCB semaforo\n";
-    cout << "\nProceso|T.Llegada|Ciclos|Edo|Memoria|CPU/E/S|Tipo     |CicSC|IniSC|DuracionSC\n";
-    AuxPCB = PPCB;
-    do {
-        if(AuxPCB->masc == 1) {
-            cout << "J" << AuxPCB->nTarea << "P" << AuxPCB->nPagina << "    | ";
-            cout << setw(9) << left << AuxPCB->TiempoLlegada << "| ";
-            cout << setw(6) << left << AuxPCB->CiclosCPU << "| ";
-            cout << setw(4) << left << AuxPCB->Estado << "| ";
-            cout << setw(8) << left << AuxPCB->Memoria << "| ";
-            if(AuxPCB->TipoProceso == 0) {
-                cout << setw(7) << left << "CPU | ";
-            } else if(AuxPCB->TipoProceso == 1) {
-                cout << setw(7) << left << "S   | ";
-            } else if(AuxPCB->TipoProceso == 2) {
-                cout << setw(7) << left << "E   | ";
+void Ver_Bloc_de_Cont_Sem(void) {
+    printf("\n-----(PCB) Semaforo-----");
+    Impresion = Pc; char Tipo[20];
+    printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d", semaforo);
+    printf("\n----------------------------------------------------------------------------------------------------------------------------------------------------------");
+    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|%s%2s|%s%2s|\n", "Proceso", "", "T-Llegada", "",
+        "Ciclos", "", "Estados", "", "Memoria", "", "CPU o E/s", "", "TipoSol", "", "Ciclos SC", "", "Inicio SC", "", "DuracionSC", "", "Wait(S)", "", "Signal(S)", "");
+    printf("----------------------------------------------------------------------------------------------------------------------------------------------------------");
+    while (Impresion != NULL) {
+        if (Impresion->masc == 1) {
+            if (Impresion->TipoP == 0) {
+                snprintf(Tipo, sizeof(Tipo), "CPU");
             }
-            if(AuxPCB->TipoSolicitud == 0) {
-                cout << setw(8) << left << "Usuario | ";
-            } else if(AuxPCB->TipoSolicitud == 1) {
-                cout << setw(8) << left << "Sistema | ";
+            else if (Impresion->TipoP == 1) {
+                snprintf(Tipo, sizeof(Tipo), "E");
             }
-            cout << setw(5) << left << AuxPCB->CicSC << "| ";
-            cout << setw(5) << left << AuxPCB->IniSC << "| ";
-            cout << AuxPCB->DuracionSC << "\n";
+            else if (Impresion->TipoP == 2) {
+                snprintf(Tipo, sizeof(Tipo), "S");
+            }
+            printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|", "", Impresion->ProcJ,
+                Impresion->ProcP, (Impresion->ProcP >= 10 || Impresion->ProcJ >= 10) ? "  " : "   ", Impresion->Tiempo, "", Impresion->Ciclo, "",
+                Impresion->Edo, "", Impresion->Mem, "", Tipo, "", (Impresion->Tipo == 0) ? "Usuario" : "Sistema", "",
+                Impresion->CicloSC, "", Impresion->IniSC, "", Impresion->DuracionSC, "", Impresion->Wait, "", Impresion->Signal, "");
         }
-        AuxPCB = AuxPCB->sig;
-    } while(AuxPCB != NULL);
-    
+        Impresion = Impresion->sig;
+    }
+    printf("\n----------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     cout << "\n";
     system("pause");
 }
 
-void RoundRobin() {
+void gestionar_seccion_critica(struct nodo_BdC* Auxc) {
+    lock_guard<mutex> lock(mtx);
+    for (int i = 0; i < Auxc->DuracionSC; i++) {
+        Auxc->Ciclo--;
+        Ver_Bloc_de_Cont(); //Mostrar las tablas
+    }
+    Auxc->Edo = 5;
+    Auxc->masc = 0;
+}
+
+void RR(void) {
     int contadorsem = 0;
     int a;
     cout << "\n\n";
-    AuxPCB = PPCB;
+    Auxc = Pc;
     do {
-        AuxPCB->Estado = 2;
-        AuxPCB = AuxPCB->sig;
-    } while(AuxPCB != NULL);
+        Auxc->Edo = 2;
+        Auxc = Auxc->sig;
+    } while (Auxc != NULL);
     Ver_Bloc_de_Cont();
-    AuxPCB = PPCB;
-    while(true) {
-        if(AuxPCB->Estado != 5) {
-            AuxPCB->Estado = 3;
+    Auxc = Pc;
+
+    while (true) {
+        if (Auxc->Edo != 5) {
+            Auxc->Edo = 3;
         }
-        a = Tquantum;
-        while(AuxPCB->CiclosCPU > 0 && a > 0 && AuxPCB->masc == 0) {
-            AuxPCB->CicSC = AuxPCB->CicSC + 1;
-            if(AuxPCB->CicSC == AuxPCB->IniSC) {
-                AuxPCB->Estado = 4;
-                AuxPCB->masc = 1;
-                PPCB2 = AuxPCB;
-                Ver_Bloc_de_Cont();
-                AuxPCB = PPCB2;
-            } else {
-                AuxPCB->CiclosCPU = (AuxPCB->CiclosCPU) - 1;
-                PPCB2 = AuxPCB;
-                Ver_Bloc_de_Cont();
-                AuxPCB = PPCB2;
-            }            
+        a = Quan;
+        while (Auxc->Ciclo > 0 && a > 0 && Auxc->masc == 0) {
+            Auxc->CicloSC = Auxc->CicloSC + 1;
+            if (Auxc->CicloSC == Auxc->IniSC) {
+                Auxc->Edo = 4;
+                Auxc->masc = 1;
+                thread t(gestionar_seccion_critica, Auxc); // Llamada correcta a la función
+                t.detach();
+                Ver_Bloc_de_Cont(); //Mostrar las tablas
+            }
+            else {
+                Auxc->Ciclo = (Auxc->Ciclo) - 1;
+                Ver_Bloc_de_Cont(); //Mostrar las tablas
+            }
             a--;
         }
-        if(AuxPCB->CiclosCPU > 0 && AuxPCB->masc == 0) {
-            AuxPCB->Estado = 4;
-            PPCB2 = AuxPCB;
-            Ver_Bloc_de_Cont();
-            AuxPCB = PPCB2;
+        if (Auxc->Ciclo > 0 && Auxc->masc == 0) {
+            Auxc->Edo = 4;
+            Ver_Bloc_de_Cont(); //Mostrar las tablas
         }
-        if(AuxPCB->CiclosCPU == 0) {
-            if(AuxPCB->Estado != 5) {
-                AuxPCB->Estado = 5;
+        if (Auxc->Ciclo == 0) {
+            if (Auxc->Edo != 5) {
+                Auxc->Edo = 5;
                 contadorsem++;
-                PPCB2 = AuxPCB;
-                Ver_Bloc_de_Cont();
-                AuxPCB = PPCB2;
+                Ver_Bloc_de_Cont(); //Mostrar las tablas
             }
-            if(contadorsem == nTareas) {
+            if (contadorsem == ContadorGlobal) {
                 cout << "\n";
                 break;
             }
         }
-        AuxPCB = AuxPCB->sig;
-        if(AuxPCB == NULL) {
-            AuxPCB = PPCB;
+
+        Auxc = Auxc->sig;
+        if (Auxc == NULL) {
+            Auxc = Pc;
         }
     }
 }
