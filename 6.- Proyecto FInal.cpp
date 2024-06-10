@@ -47,7 +47,7 @@ struct nodo_BdC{
 
 nodo_TT *Pt, *Qt, *Nuevot, *Auxt;
 nodo_MPT *Pp, *Qp, *Nuevop, *Auxp;
-nodo_BdC *Pc, *Qc, *Nuevoc, *Auxc, *Pivotec;
+nodo_BdC *Pc, *Qc, *Nuevoc, *Auxc, *Auxc2, *Pivotec, *Impresion;
 int semaforo=1;
 
 int main(){
@@ -202,6 +202,8 @@ void Bloc_de_Cont(void){
 					Pc->DuracionSC=1+rand()%3;
 				}
 				Pc->masc=0;
+				Pc->Signal=0;
+				Pc->Wait=0;
 				ContadorGlobal++;
 				Pc->sig=NULL;
 				Qc=Pc;
@@ -228,6 +230,8 @@ void Bloc_de_Cont(void){
 					Nuevoc->DuracionSC=1+rand()%3;
 				}
 				Nuevoc->masc=0;
+				Nuevoc->Signal=0;
+				Nuevoc->Wait=0;
 				ContadorGlobal++;
 				Nuevoc->sig=NULL;
 				Qc->sig=Nuevoc;
@@ -243,26 +247,26 @@ void Bloc_de_Cont(void){
 void Ver_Bloc_de_Cont(void){
 	system("cls");
     printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
-    Auxc=Pc;	char Tipo[20];
+    Impresion=Pc;	char Tipo[20];
     printf("\n------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
 	"Ciclos","","Estados","","Memoria","","CPU o E/s","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","");
     printf("------------------------------------------------------------------------------------------------------------------------------------");
-    while(Auxc != NULL){
-    	if(Auxc->masc==0){
-	    	if(Auxc->TipoP == 0){
+    while(Impresion != NULL){
+    	if(Impresion->masc==0){
+	    	if(Impresion->TipoP == 0){
 	            snprintf(Tipo, sizeof(Tipo), "CPU");
-	        } else if(Auxc->TipoP == 1){
+	        } else if(Impresion->TipoP == 1){
 	            snprintf(Tipo, sizeof(Tipo), "E");
-	        } else if(Auxc->TipoP == 2){
+	        } else if(Impresion->TipoP == 2){
 	            snprintf(Tipo, sizeof(Tipo), "S");
 	        }
-	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|","",Auxc->ProcJ,
-			Auxc->ProcP,(Auxc->ProcP>=10||Auxc->ProcJ>=10)?"  ":"   ",Auxc->Tiempo,"",Auxc->Ciclo,"",
-			Auxc->Edo,"",Auxc->Mem,"",Tipo,"",(Auxc->Tipo==0)?"Usuario":"Sistema","",
-			Auxc->CicloSC,"",Auxc->IniSC,"",Auxc->DuracionSC,"");
+	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|","",Impresion->ProcJ,
+			Impresion->ProcP,(Impresion->ProcP>=10||Impresion->ProcJ>=10)?"  ":"   ",Impresion->Tiempo,"",Impresion->Ciclo,"",
+			Impresion->Edo,"",Impresion->Mem,"",Tipo,"",(Impresion->Tipo==0)?"Usuario":"Sistema","",
+			Impresion->CicloSC,"",Impresion->IniSC,"",Impresion->DuracionSC,"");
 		}
-		Auxc=Auxc->sig;
+		Impresion=Impresion->sig;
     }
     printf("\n------------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
@@ -271,27 +275,27 @@ void Ver_Bloc_de_Cont(void){
 
 void Ver_Bloc_de_Cont_Sem(void){
     printf("\n-----(PCB) Semaforo-----");
-    Auxc=Pc;	char Tipo[20];
+    Impresion=Pc;	char Tipo[20];
     printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",semaforo);
     printf("\n----------------------------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%6s|%s%3s|%s%3s|%s%2s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
 	"Ciclos","","Estados","","Memoria","","CPU o E/s","","TipoSol","","Ciclos SC","","Inicio SC","","DuracionSC","","Wait(S)","","Signal(S)","");
     printf("----------------------------------------------------------------------------------------------------------------------------------------------------------");
-    while(Auxc != NULL){
-    	if(Auxc->masc==1){
-	    	if(Auxc->TipoP == 0){
+    while(Impresion != NULL){
+    	if(Impresion->masc==1){
+	    	if(Impresion->TipoP == 0){
 	            snprintf(Tipo, sizeof(Tipo), "CPU");
-	        } else if(Auxc->TipoP == 1){
+	        } else if(Impresion->TipoP == 1){
 	            snprintf(Tipo, sizeof(Tipo), "E");
-	        } else if(Auxc->TipoP == 2){
+	        } else if(Impresion->TipoP == 2){
 	            snprintf(Tipo, sizeof(Tipo), "S");
 	        }
-	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|","",Auxc->ProcJ,
-			Auxc->ProcP,(Auxc->ProcP>=10||Auxc->ProcJ>=10)?"  ":"   ",Auxc->Tiempo,"",Auxc->Ciclo,"",
-			Auxc->Edo,"",Auxc->Mem,"",Tipo,"",(Auxc->Tipo==0)?"Usuario":"Sistema","",
-			Auxc->CicloSC,"",Auxc->IniSC,"",Auxc->DuracionSC,"",Auxc->Wait,"",Auxc->Signal,"");
+	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6s%6s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|","",Impresion->ProcJ,
+			Impresion->ProcP,(Impresion->ProcP>=10||Impresion->ProcJ>=10)?"  ":"   ",Impresion->Tiempo,"",Impresion->Ciclo,"",
+			Impresion->Edo,"",Impresion->Mem,"",Tipo,"",(Impresion->Tipo==0)?"Usuario":"Sistema","",
+			Impresion->CicloSC,"",Impresion->IniSC,"",Impresion->DuracionSC,"",Impresion->Wait,"",Impresion->Signal,"");
 		}
-		Auxc=Auxc->sig;
+		Impresion=Impresion->sig;
     }
     printf("\n----------------------------------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
@@ -319,38 +323,22 @@ void RR(void){
 			if(Auxc->CicloSC==Auxc->IniSC){
 				Auxc->Edo=4;
 				Auxc->masc=1;
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla
-				Auxc=Pivotec;
-				//////////////////////////////////////////
+				Ver_Bloc_de_Cont();	//Mostrar la tablas
 			}else{
 				Auxc->Ciclo=(Auxc->Ciclo)-1;
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla
-				Auxc=Pivotec;
-				//////////////////////////////////////////
+				Ver_Bloc_de_Cont();	//Mostrar la tablas
 			}			
 			a--;
 		}
 		if(Auxc->Ciclo>0 && Auxc->masc==0){
 			Auxc->Edo=4;
-			//////////////////////////////////////////
-			Pivotec=Auxc;
-			Ver_Bloc_de_Cont();	//Mostrar la tabla
-			Auxc=Pivotec;
-			//////////////////////////////////////////
+			Ver_Bloc_de_Cont();	//Mostrar la tablas
 		}
 		if(Auxc->Ciclo==0){
 			if(Auxc->Edo!=5){
 				Auxc->Edo=5;
 				contadorsem++;
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla
-				Auxc=Pivotec;
-				//////////////////////////////////////////
+				Ver_Bloc_de_Cont();	//Mostrar la tablas
 			}
 			if(contadorsem==ContadorGlobal){
 				cout<<"\n";
