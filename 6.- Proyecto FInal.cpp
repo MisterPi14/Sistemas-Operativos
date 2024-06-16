@@ -1,6 +1,7 @@
 #include<iostream>
 #include<conio.h>
 #include<stdlib.h>
+#include<stdio.h>
 #include<time.h>
 #include<windows.h>
 #include <iomanip>
@@ -19,6 +20,7 @@ void Ver_Bloc_de_Cont_sem(void);
 void RR(void);
 void semaforo(void);
 void devolucion(void);
+void manejadorInter(void);
 
 struct nodo_TT{
 	int NoTarea, tamanio, LocPMT, totalP, Sec[Arr];
@@ -31,12 +33,12 @@ struct nodo_MPT{
 };
 
 struct nodo_BdC{
-	int ProcJ, ProcP, Tiempo, Ciclo, Edo, Mem, TipoP, CicloSC, IniSC, DuracionSC, masc;
+	int ProcJ, ProcP, Tiempo, Ciclo, Edo, Mem, TipoP, CicloSC, IniSC, DuracionSC, masc, VectorInt;
 	struct nodo_BdC*sig;
 };
 
 struct nodo_sem{
-	int ProcJ, ProcP, Tiempo, Ciclo, Edo, Mem, TipoP, Tipo, CicloSC, IniSC, DuracionSC, masc, Wsem, Ssig, semaforo;
+	int ProcJ, ProcP, Tiempo, Ciclo, Edo, Mem, TipoP, Tipo, CicloSC, IniSC, DuracionSC, masc, Wsem, Ssig, VectorInt;
 	struct nodo_sem*sig;
 };
 
@@ -44,12 +46,18 @@ nodo_TT *Pt, *Qt, *Nuevot, *Auxt;
 nodo_MPT *Pp, *Qp, *Nuevop, *Auxp;
 nodo_BdC *Pc, *Qc, *Nuevoc, *Auxc, *Pivotec, *ImpresionPCB;
 nodo_sem *Ps, *Qs, *Nuevos, *Auxs, *Pivotes, *ImpresionSem;
+int sem=1;
+const char *TablaVecInt[]  = {
+    "Divide Error", "Debug Exception", "Non Maskable Interrupt", "Breakpoint Exception", "Overflow Exception", 
+    "Bound Range Exceeded Exception", "Invalid Opcode Exception", "Device Not Available Exception", "Double Fault Exception", 
+    "Coprocessor Segment Overrun", "Invalid TSS Exception", "Segment Not Present Exception", "Stack-Segment Fault Exception", 
+    "General Protection Fault Exception", "Page Fault Exception", "Reserved", "x87 Floating-Point Exception", 
+    "Alignment Check Exception", "Machine Check Exception", "SIMD Floating-Point Exception", "Virtualization Exception"
+};
 
 int main(){
 	Pt=NULL;
 	Qt=NULL;
-	
-
 	crear_TT();
 	crear_MPT();
 	ver_MPT();
@@ -79,7 +87,7 @@ void crear_TT(void){//TABLA DE TAREAS
 			}
 			Pt->Sec[0]=0;
 			for(int k=1;k<Arr;k++){
-				Pt->Sec[k]=0+rand()%Pt->totalP;
+				Pt->Sec[k]=1+rand()%Pt->totalP;
 			}
 			Pt->sig=NULL;
 			Qt=Pt;
@@ -98,7 +106,7 @@ void crear_TT(void){//TABLA DE TAREAS
 			}
 			Nuevot->Sec[0]=0;
 			for(int k=1;k<Arr;k++){
-				Nuevot->Sec[k]=0+rand()%Nuevot->totalP;
+				Nuevot->Sec[k]=1+rand()%Nuevot->totalP;
 			}
 			Nuevot->sig=NULL;
 			Qt->sig=Nuevot;
@@ -168,7 +176,6 @@ void ver_MPT(void){
 
 float ContadorGlobal=0;
 void Bloc_de_Cont(void){
-	int aux;
 	srand(time(NULL));
 	int T=0;
 	Auxp=Pp;
@@ -184,22 +191,19 @@ void Bloc_de_Cont(void){
 				Pc->Mem=10+rand()%111;
 				Pc->TipoP=0+rand()%3;
 				Pc->CicloSC=0;
-				aux=Pc->Ciclo;
-				if(Pc->TipoP==0){
-					Pc->IniSC=0;
-				}else{
-					Pc->IniSC=rand()%aux+1;
-				}
+				//Pc->IniSC=rand()%aux+1;
+				Pc->IniSC=rand()%Quan+1;
 				if(Pc->IniSC==0){
 					Pc->DuracionSC=0;
-				}else if(Pc->IniSC==aux){
+				}else if(Pc->IniSC==Pc->Ciclo){
 					Pc->DuracionSC=1;
-				}else if(Pc->IniSC==aux-1){
-					Pc->DuracionSC=rand()%2+1;
+				}else if(Pc->IniSC==Pc->Ciclo-1){
+					Pc->DuracionSC=1+rand()%2;
 				}else{
 					Pc->DuracionSC=1+rand()%3;
 				}
 				Pc->masc=0;
+				Pc->VectorInt=0+rand()%20;
 				ContadorGlobal++;
 				Pc->sig=NULL;
 				Qc=Pc;
@@ -213,22 +217,19 @@ void Bloc_de_Cont(void){
 				Nuevoc->Mem=10+rand()%111;
 				Nuevoc->TipoP=0+rand()%3;
 				Nuevoc->CicloSC=0;
-				aux=Nuevoc->Ciclo;
-				if(Nuevoc->TipoP==0){
-					Nuevoc->IniSC=0;
-				}else{
-					Nuevoc->IniSC=rand()%aux+1;
-				}
+//				Nuevoc->IniSC=rand()%aux+1;
+				Nuevoc->IniSC=rand()%Quan+1;
 				if(Nuevoc->IniSC==0){
 					Nuevoc->DuracionSC=0;
-				}else if(Nuevoc->IniSC==aux){
+				}else if(Nuevoc->IniSC==Nuevoc->Ciclo){
 					Nuevoc->DuracionSC=1;
-				}else if(Nuevoc->IniSC==aux-1){
+				}else if(Nuevoc->IniSC==Nuevoc->Ciclo-1){
 					Nuevoc->DuracionSC=rand()%2+1;
 				}else{
 					Nuevoc->DuracionSC=1+rand()%3;
 				}
 				Nuevoc->masc=0;
+				Nuevoc->VectorInt=0+rand()%20;
 				ContadorGlobal++;
 				Nuevoc->sig=NULL;
 				Qc->sig=Nuevoc;
@@ -249,8 +250,8 @@ void Ver_Bloc_de_Cont(void){
     printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
     ImpresionPCB=Pc;	char Tipo[20];
     printf("\n----------------------------------------------------------------------------------------------------------------------");
-    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%3s|%s%2s|\n","Proceso","","T-Llegada","",
-	"Ciclos","","Estados","","Memoria","","CPU o E/s","","Ciclos SC","","Inicio SC","","DuracionSC","");
+    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%0s|%s%2s|\n","Proceso","","T-Llegada","",
+	"Ciclos","","Estados","","Memoria","","CPU o E/s","","Ciclos SC","","Inicio inter","","DuracionSC","");
     printf("----------------------------------------------------------------------------------------------------------------------");
     while(ImpresionPCB != NULL){
     	if(ImpresionPCB->masc==0){
@@ -271,102 +272,40 @@ void Ver_Bloc_de_Cont(void){
 	cout<<"\n";
 	Ver_Bloc_de_Cont_sem();
 }
-
 void Ver_Bloc_de_Cont_sem(void){
-    printf("\n-----(PCB) Semaforo-----");
-    ImpresionSem=Ps;	char Tipo[20];
-    printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",semaforo);
-    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------");
-    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%3s|%s%2s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
-	"Ciclos","","Estados","","Memoria","","CPU o E/s","","Ciclos SC","","Inicio SC","","DuracionSC","","Wait(S)","","Signal(S)","");
-    printf("--------------------------------------------------------------------------------------------------------------------------------------------");
-    while(ImpresionSem != NULL){
-    	if(ImpresionSem->masc==1){
-	    	if(ImpresionSem->TipoP == 0){
-	            snprintf(Tipo, sizeof(Tipo), "CPU");
-	        } else if(ImpresionSem->TipoP == 1){
-	            snprintf(Tipo, sizeof(Tipo), "E");
-	        } else if(ImpresionSem->TipoP == 2){
-	            snprintf(Tipo, sizeof(Tipo), "S");
-	        }
-	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|","",ImpresionSem->ProcJ,
-			ImpresionSem->ProcP,(ImpresionSem->ProcP>=10||ImpresionSem->ProcJ>=10)?"  ":"   ",ImpresionSem->Tiempo,"",ImpresionSem->Ciclo,"",
-			ImpresionSem->Edo,"",ImpresionSem->Mem,"",Tipo,"",ImpresionSem->CicloSC,"",ImpresionSem->IniSC,"",
-			ImpresionSem->DuracionSC,"",ImpresionSem->Wsem,"",ImpresionSem->Ssig,"");
-		}
-		ImpresionSem=ImpresionSem->sig;
-    }
-    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------\n");	
-	cout<<"\n";
+//	if(){
+	    printf("\n-----(PCB) Semaforo-----");
+	    ImpresionSem=Ps;	char Tipo[20];
+	    printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",sem);
+	    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------");
+	    printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%0s|%s%2s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
+		"Ciclos","","Estados","","Memoria","","CPU o E/s","","Ciclos SC","","Inicio inter","","DuracionSC","","Wait(S)","","Signal(S)","");
+	    printf("--------------------------------------------------------------------------------------------------------------------------------------------");
+	    while(ImpresionSem != NULL){
+	    	if(ImpresionSem->masc==1){
+		    	if(ImpresionSem->TipoP == 0){
+		            snprintf(Tipo, sizeof(Tipo), "CPU");
+		        } else if(ImpresionSem->TipoP == 1){
+		            snprintf(Tipo, sizeof(Tipo), "E");
+		        } else if(ImpresionSem->TipoP == 2){
+		            snprintf(Tipo, sizeof(Tipo), "S");
+		        }
+		        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|","",ImpresionSem->ProcJ,
+				ImpresionSem->ProcP,(ImpresionSem->ProcP>=10||ImpresionSem->ProcJ>=10)?"  ":"   ",ImpresionSem->Tiempo,"",ImpresionSem->Ciclo,"",
+				ImpresionSem->Edo,"",ImpresionSem->Mem,"",Tipo,"",ImpresionSem->CicloSC,"",ImpresionSem->IniSC,"",
+				ImpresionSem->DuracionSC,"",ImpresionSem->Wsem,"",ImpresionSem->Ssig,"");
+			}
+			ImpresionSem=ImpresionSem->sig;
+	    }
+	    printf("\n--------------------------------------------------------------------------------------------------------------------------------------------\n");	
+		cout<<"\n";	
+//	}
+//	else{
+//		printf("");
+//	}
+
 	system("pause");
 }
-
-/*
-void Ver_Bloc_de_Cont(void){
-	int x=0;
-	system("cls");
-	cout<<"\nBloque de control de procesos (PCB)\n";
-	cout<<"\nProceso | T.Llegada | Ciclos | Edo | Memoria | CPU/E/S | CicSC | IniSC | DuracionSC\n";
-	Auxc=Pc;
-	do{
-		if(Auxc->masc==0){
-			cout<<"J"<<Auxc->ProcJ<<"P"<<Auxc->ProcP<<"    | ";
-			cout<<setw(10)<<left<<Auxc->Tiempo<<"| ";
-			cout<<setw(7)<<left<<Auxc->Ciclo<<"| ";
-			cout<<setw(4)<<left<<Auxc->Edo<<"| ";
-			cout<<setw(8)<<left<<Auxc->Mem<<"| ";
-			if(Auxc->TipoP==0){
-				cout<<setw(9)<<left<<"CPU     | ";
-			}else if(Auxc->TipoP==1){
-				cout<<setw(9)<<left<<"S       | ";
-			}else if(Auxc->TipoP==2){
-				cout<<setw(9)<<left<<"E       | ";
-			}
-			cout<<setw(5)<<left<<Auxc->CicloSC<<"| ";
-			cout<<setw(5)<<left<<Auxc->IniSC<<"| ";
-			cout<<Auxc->DuracionSC<<"\n";
-		}
-		Auxc=Auxc->sig;
-	}while(Auxc!=NULL);
-	x++;
-	if(confirm>0){
-		Ver_Bloc_de_Cont_sem();
-	}else{
-		system("pause");
-	}
-	cout<<"\n";
-}
-
-void Ver_Bloc_de_Cont_sem(void){
-	cout<<"\nBloque de control de procesos (PCB)\n";
-	cout<<"\nProceso | T.Llegada | Ciclos | Edo | Memoria | CPU/E/S | Tipo     | IniSC | DuracionSC | W(sem) | S(sig) | semaforo\n";
-	Auxs=Ps;
-	do{
-		if(Auxs->masc==1){
-			cout<<"J"<<Auxs->ProcJ<<"P"<<Auxs->ProcP<<"    | ";
-			cout<<setw(10)<<left<<Auxs->Tiempo<<"| ";
-			cout<<setw(7)<<left<<Auxs->Ciclo<<"| ";
-			cout<<setw(4)<<left<<Auxs->Edo<<"| ";
-			cout<<setw(8)<<left<<Auxs->Mem<<"| ";
-			if(Auxs->TipoP==0){
-				cout<<setw(9)<<left<<"CPU     | ";
-			}else if(Auxs->TipoP==1){
-				cout<<setw(9)<<left<<"S       | ";
-			}else if(Auxs->TipoP==2){
-				cout<<setw(9)<<left<<"E       | ";
-			}
-			cout<<setw(5)<<left<<Auxs->CicloSC<<"| ";
-			cout<<setw(5)<<left<<Auxs->IniSC<<"| ";
-			cout<<setw(10)<<Auxs->DuracionSC<<" |";
-			cout<<setw(8)<<Auxs->Wsem<<"|";
-			cout<<setw(8)<<Auxs->Ssig<<"|";
-			cout<<Auxs->semaforo<<"\n";	
-		}
-		Auxs=Auxs->sig;
-	}while(Auxs!=NULL);
-	system("pause");
-	cout<<"\n";
-}*/
 
 void Bloc_de_Cont_sem(void){
 	if(Auxc->masc==1){
@@ -383,9 +322,9 @@ void Bloc_de_Cont_sem(void){
 			Ps->IniSC=Auxc->IniSC;
 			Ps->DuracionSC=Auxc->DuracionSC;
 			Ps->masc=Auxc->masc;
+			Ps->VectorInt=Auxc->VectorInt;
 			Ps->Wsem=1;
 			Ps->Ssig=0;
-			Ps->semaforo=0;
 			Ps->sig=NULL;
 			Qs=Ps;
 		}else{
@@ -403,7 +342,7 @@ void Bloc_de_Cont_sem(void){
 			Nuevos->masc=Auxc->masc;
 			Nuevos->Wsem=1;
 			Nuevos->Ssig=0;
-			Nuevos->semaforo=0;
+			Nuevos->VectorInt=Auxc->VectorInt;
 			Nuevos->sig=NULL;
 			Qs->sig=Nuevos;
 			Qs=Nuevos;	
@@ -426,52 +365,33 @@ void RR(void){
 		if(Auxc->Edo!=5){
 			Auxc->Edo=3;
 		}
+		Ver_Bloc_de_Cont();	//Mostrar tablas
 		a=Quan;
+		Ver_Bloc_de_Cont();	//Mostrar tablas
 		while(Auxc->Ciclo>0 && a>0 && Auxc->masc==0){
-			Pivotec=Auxc;
-			semaforo();
-			Auxc=Pivotec;
-			if(Auxc->Ciclo>0){
-				Auxc->CicloSC=Auxc->CicloSC+1;
-				Auxc->Ciclo=(Auxc->Ciclo)-1;
-			}
-			if((Auxc->CicloSC)==Auxc->IniSC){
-				confirm=1;	
+			manejadorInter();
+			Auxc->CicloSC++;
+			Auxc->Ciclo--;
+			if(Auxc->CicloSC==Auxc->IniSC && Auxc->DuracionSC!=0){
+				Ver_Bloc_de_Cont();	//Mostrar tablas
+				confirm=1;
 				Auxc->Edo=4;
 				Auxc->masc=1;
-				Auxc->DuracionSC=Auxc->DuracionSC-1;
-				Bloc_de_Cont_sem();	
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla
-				Auxc=Pivotec;
-				//////////////////////////////////////////
+				Auxc->DuracionSC--;
+				Bloc_de_Cont_sem();
 				a=0;
-			}else{
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla
-				Auxc=Pivotec;
-				//////////////////////////////////////////
-			}		
+			}	
+			Ver_Bloc_de_Cont();	//Mostrar tablas
 			a--;
 		}
 		if(Auxc->Ciclo>0 && Auxc->masc==0){
 			Auxc->Edo=4;
-			//////////////////////////////////////////
-			Pivotec=Auxc;
-			Ver_Bloc_de_Cont();	//Mostrar la tabla
-			Auxc=Pivotec;
-			//////////////////////////////////////////
+			Ver_Bloc_de_Cont();	//Mostrar tablas
 		}
 		if(Auxc->Ciclo==0){
 			if(Auxc->Edo!=5){
 				Auxc->Edo=5;
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla
-				Auxc=Pivotec;
-				//////////////////////////////////////////
+				Ver_Bloc_de_Cont();	//Mostrar tablas
 			}
 			Pivotec=Auxc;
 			Auxc=Pc;
@@ -506,14 +426,8 @@ void semaforo(void){
 			if(Auxs->DuracionSC==0){
 				Auxs->Wsem=0;
 				Auxs->Ssig=1;
-				Auxs->semaforo=1;
-				//////////////////////////////////////////
-				Pivotec=Auxc;
-				Pivotes=Auxs;
-				Ver_Bloc_de_Cont();	//Mostrar la tabla, incluyendo el semaforo
-				Auxs=Pivotes;
-				Auxc=Pivotec;
-				//////////////////////////////////////////	
+				//Auxs->semaforo=1;
+				Ver_Bloc_de_Cont();	//Mostrar la tablas
 				Auxs->masc=0;
 				if(Auxs->Ciclo==0){
 					Auxs->Edo=5;
@@ -533,16 +447,31 @@ void semaforo(void){
 }
 
 void devolucion(void){
-	Auxc=Pc;
+	Pivotec=Pc;
 	do{
-		if(Auxc->Tiempo==Auxs->Tiempo){
-			Auxc->masc=Auxs->masc;
-			Auxc->CicloSC=Auxs->CicloSC;
-			Auxc->IniSC=Auxs->IniSC;
-			Auxc->DuracionSC=Auxs->DuracionSC;
-			Auxc->Edo=Auxs->Edo;
-			Auxc->Ciclo=Auxs->Ciclo;
+		if(Pivotec->Tiempo==Auxs->Tiempo){
+			Pivotec->masc=Auxs->masc;
+			Pivotec->CicloSC=Auxs->CicloSC;
+			Pivotec->IniSC=Auxs->IniSC;
+			Pivotec->DuracionSC=Auxs->DuracionSC;
+			Pivotec->Edo=Auxs->Edo;
+			Pivotec->Ciclo=Auxs->Ciclo;
 		}
-		Auxc=Auxc->sig;
-	}while(Auxc!=NULL);
+		Pivotec=Pivotec->sig;
+	}while(Pivotec!=NULL);
+}
+
+void manejadorInter(void){
+	if(Auxc->TipoP==0){
+		system("cls");	
+		printf("------------------------------------------------------------------------\n");
+		printf("|\t\tEl programa genero una interrupcion\n|\tDescripcion: %s\n",TablaVecInt[Auxc->VectorInt]);
+		printf("------------------------------------------------------------------------\n\n");
+		printf("Aceptar -> <enter>\n\n");
+		Auxc->masc=2;
+		system("pause");	
+	}
+	else{
+		semaforo();
+	}
 }
