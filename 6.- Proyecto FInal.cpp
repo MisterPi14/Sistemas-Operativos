@@ -47,13 +47,61 @@ nodo_MPT *Pp, *Qp, *Nuevop, *Auxp;
 nodo_BdC *Pc, *Qc, *Nuevoc, *Auxc, *Pivotec, *ImpresionPCB;
 nodo_sem *Ps, *Qs, *Nuevos, *Auxs, *Pivotes, *ImpresionSem;
 bool sem=1;
-const char *TablaVecInt[]  = {
-    "Divide Error", "Debug Exception", "Non Maskable Interrupt", "Breakpoint Exception", "Overflow Exception", 
-    "Bound Range Exceeded Exception", "Invalid Opcode Exception", "Device Not Available Exception", "Double Fault Exception", 
-    "Coprocessor Segment Overrun", "Invalid TSS Exception", "Segment Not Present Exception", "Stack-Segment Fault Exception", 
-    "General Protection Fault Exception", "Page Fault Exception", "Reserved", "x87 Floating-Point Exception", 
-    "Alignment Check Exception", "Machine Check Exception", "SIMD Floating-Point Exception", "Virtualization Exception"
-};
+
+const char* TablaVecInt[] = {
+        "Error de División",                      // 0
+        "Excepción de Depuración",                // 1
+        "Interrupción No Mascable",               // 2
+        "Excepción de Punto de Interrupción",     // 3
+        "Excepción de Desbordamiento",            // 4
+        "Excepción de Rango Excedido",            // 5
+        "Excepción de Código de Operación Inválido", // 6
+        "Excepción de Dispositivo No Disponible", // 7
+        "Excepción de Doble Falla",               // 8
+        "Excepción de Segmento de Coprocesador",  // 9
+        "Excepción de TSS Inválida",              // 10
+        "Excepción de Segmento No Presente",      // 11
+        "Excepción de Falla de Segmento de Pila", // 12
+        "Excepción de Protección General",        // 13
+        "Excepción de Falla de Página",           // 14
+        "Reservado",                              // 15
+        "Excepción de Punto Flotante x87",        // 16
+        "Excepción de Chequeo de Alineación",     // 17
+        "Excepción de Chequeo de Máquina",        // 18
+        "Excepción de Punto Flotante SIMD",       // 19
+        "Excepción de Virtualización",            // 20
+        "Reservado",                              // 21
+        "Reservado",                              // 22
+        "Reservado",                              // 23
+        "Reservado",                              // 24
+        "Reservado",                              // 25
+        "Reservado",                              // 26
+        "Reservado",                              // 27
+        "Reservado",                              // 28
+        "Reservado",                              // 29
+        "Reservado",                              // 30
+        "Reservado",                              // 31
+        "IRQ0 - Temporizador del Sistema",        // 32 AQUI ACABAN LAS EXCEPCIONES Y ERRORES
+        "IRQ1 - Teclado",                         // 33
+        "IRQ2 - Cascada para Controlador Esclavo 8259A", // 34
+        "IRQ3 - COM2",                            // 35
+        "IRQ4 - COM1",                            // 36
+        "IRQ5 - LPT2",                            // 37
+        "IRQ6 - Disquete",                        // 38
+        "IRQ7 - LPT1",                            // 39
+        "IRQ8 - Reloj en Tiempo Real CMOS",       // 40
+        "IRQ9 - Libre para periféricos",          // 41
+        "IRQ10 - Libre para periféricos",         // 42
+        "IRQ11 - Libre para periféricos",         // 43
+        "IRQ12 - Ratón PS/2",                     // 44
+        "IRQ13 - FPU / Coprocesador",             // 45
+        "IRQ14 - Disco Duro ATA Primario",        // 46
+        "IRQ15 - Disco Duro ATA Secundario",      // 47
+        "Asignado dinámicamente para dispositivos PCI", // 48-223
+        "Reservado para vectores de alta prioridad", // 224-254
+        "Interrupciones Definidas por el Usuario (para uso de hardware y software)" // 255
+    };
+const int InterrSel[] = {0, 4, 20, 10, 12, 33, 43, 40, 47, 44};//Las primeras 5 son ex o errores, las ultimas 5 son interrupciones de e/s
 
 int main(){
 	Pt=NULL;
@@ -202,7 +250,7 @@ void Bloc_de_Cont(void){
 					Pc->DuracionSC=1+rand()%3;
 				}
 				Pc->masc=0;
-				Pc->VectorInt=0+rand()%20;
+				Pc->VectorInt=InterrSel[0+rand()%10];
 				ContadorGlobal++;
 				Pc->sig=NULL;
 				Qc=Pc;
@@ -227,7 +275,7 @@ void Bloc_de_Cont(void){
 					Nuevoc->DuracionSC=1+rand()%3;
 				}
 				Nuevoc->masc=0;
-				Nuevoc->VectorInt=0+rand()%20;
+				Nuevoc->VectorInt=InterrSel[0+rand()%10];
 				ContadorGlobal++;
 				Nuevoc->sig=NULL;
 				Qc->sig=Nuevoc;
