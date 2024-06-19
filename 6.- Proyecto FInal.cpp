@@ -250,7 +250,11 @@ void Bloc_de_Cont(void){
 					Pc->DuracionSC=1+rand()%3;
 				}
 				Pc->masc=0;
-				Pc->VectorInt=InterrSel[0+rand()%10];
+				if(Pc->TipoP == 0){
+		            Pc->VectorInt=InterrSel[0+rand()%5];
+		        } else{
+		        	Pc->VectorInt=InterrSel[0+rand()%10];
+		        }
 				ContadorGlobal++;
 				Pc->sig=NULL;
 				Qc=Pc;
@@ -275,7 +279,11 @@ void Bloc_de_Cont(void){
 					Nuevoc->DuracionSC=1+rand()%3;
 				}
 				Nuevoc->masc=0;
-				Nuevoc->VectorInt=InterrSel[0+rand()%10];
+				if(Nuevoc->TipoP == 0){
+		            Nuevoc->VectorInt=InterrSel[0+rand()%5];
+		        } else{
+		        	Nuevoc->VectorInt=InterrSel[0+rand()%10];
+		        }
 				ContadorGlobal++;
 				Nuevoc->sig=NULL;
 				Qc->sig=Nuevoc;
