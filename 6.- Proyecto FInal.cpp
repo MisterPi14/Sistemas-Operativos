@@ -289,13 +289,12 @@ void Bloc_de_Cont(void){
 		}
 		Auxp=Auxp->sig;
 	}while(Auxp!=NULL);
-	Ver_Bloc_de_Cont();
 }  
 
-int confirm=0;
 
 
 void Ver_Bloc_de_Cont(bool ImpSem){
+	//PONER: proceso, tllegada, ciclos, estado, tipo de proceso (cpu o e/s), ciclosc, inicio sc, codigo interr, duracion sc
 	system("cls");
     printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
     ImpresionPCB=Pc;	char Tipo[20];
@@ -320,10 +319,15 @@ void Ver_Bloc_de_Cont(bool ImpSem){
     }
     printf("\n-----------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
-	if(ImpSem)
-	Ver_Bloc_de_Cont_sem();
+	if(ImpSem==true){
+		Ver_Bloc_de_Cont_sem();
+	}
+	else{
+		system("pause");
+	}
 }
 void Ver_Bloc_de_Cont_sem(void){
+	//lamada wait signal, sem, sc
     printf("\n-----(PCB) Semaforo-----");
     ImpresionSem=Ps;	char Tipo[20];
     printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",sem);
@@ -394,30 +398,33 @@ void Bloc_de_Cont_sem(void){
 		}
 	} 
 }  
+
+int confirm=0;
    
 void RR(void){
 	int contadorsem=0;
 	int quantum;
 	cout<<"\n\n";
 	Auxc=Pc;
+	Ver_Bloc_de_Cont(0);
 	do{
 		Auxc->Edo=2;
 		Auxc=Auxc->sig;
 	}while(Auxc!=NULL);
-	Ver_Bloc_de_Cont();
+	Ver_Bloc_de_Cont(0);
 	Auxc=Pc;
 	while(true){
 		if(Auxc->Edo!=5){
 			Auxc->Edo=3;
 		}
 		quantum=Quan;
-		Ver_Bloc_de_Cont();	//Mostrar tablas
-		while(Auxc->Ciclo>0 && quantum>0 && Auxc->masc==0){
-			manejadorInter();
+		(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
+		while(Auxc->Ciclo>0 && quantum>0 && Auxc->masc==0){//ciclos de ejecucion RR
+			manejadorInter();//Entra a SC si confirm=1
 			Auxc->CicloSC++;
 			Auxc->Ciclo--;
-			if(Auxc->CicloSC==Auxc->IniSC && Auxc->DuracionSC!=0){
-				Ver_Bloc_de_Cont();	//Mostrar tablas
+			if(Auxc->CicloSC==Auxc->IniSC && Auxc->DuracionSC!=0){//Se actualiza para que entre en SC 
+				(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 				confirm=1;
 				Auxc->Edo=4;
 				Auxc->masc=1;
@@ -425,32 +432,35 @@ void RR(void){
 				Bloc_de_Cont_sem();
 				quantum=0;
 			}
-			Ver_Bloc_de_Cont();	//Mostrar tablas
+			(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 			quantum--;
 		}
-		if(Auxc->Ciclo>0 && Auxc->masc==0){
+		if(Auxc->Ciclo>0 && Auxc->masc==0){//se para un proceso se acabo el quantum pero no entro en SC
 			Auxc->Edo=4;
-			Ver_Bloc_de_Cont();	//Mostrar tablas
+			Ver_Bloc_de_Cont(0);	//Mostrar tablas
 		}
-		if(Auxc->Ciclo==0){
-			if(Auxc->Edo!=5){
+		if(Auxc->Ciclo==0){//si acabo de ejecutarse un proceso
+			if(Auxc->Edo!=5){//actualizar el estado a 5 si aun no esta
 				Auxc->Edo=5;
-				Ver_Bloc_de_Cont();	//Mostrar tablas
+				Ver_Bloc_de_Cont(0);	//Mostrar tablas
 			}
-			Pivotec=Auxc;
-			Auxc=Pc;
+			//Pivotec=Auxc;
+			//Auxc=Pc;
+			//Se cuentan cuantos procesos ya acabaron y si ya son todos acaba el programa
+			Pivotec=Pc;
 			do{
-				if(Auxc->Edo==5){
+				if(Pivotec->Edo==5){
 					contadorsem++;
 				}
-				Auxc=Auxc->sig;
-			}while(Auxc!=NULL);
+				Pivotec=Pivotec->sig;
+			}while(Pivotec!=NULL);
 			if(contadorsem==ContadorGlobal){
 				break;
 			}
 			contadorsem=0;
-			Auxc=Pivotec;
+			//Auxc=Pivotec;
 		}
+		//RR alternando con el siguiente proceso
 		Auxc=Auxc->sig;
 		if(Auxc==NULL){
 			Auxc=Pc;
@@ -461,27 +471,28 @@ void RR(void){
 void semaforo(void){
 	if(confirm==1){
 		Auxs=Ps;
+		//llegando hasta el elemento de la lista s que tenga masc = 1
 		do{
 			if(Auxs->masc==0){
 				Auxs=Auxs->sig;
 			}
 		}while(Auxs->masc==0);
-		if(Auxs->masc==1){
-			if(Auxs->DuracionSC==0){
+		if(Auxs->masc==1){//si la mascara es 1 (si le corresponde semaforo aun)
+			if(Auxs->DuracionSC==0){//si ya acabo sus ciclos de SC en el semaforo 
 				Auxs->Wsem=0;
 				Auxs->Ssig=1;
 				sem=1;
-				Ver_Bloc_de_Cont();	//Mostrar la tablas
+				Ver_Bloc_de_Cont(1);	//Mostrar la tablas
 				Auxs->masc=0;
-				if(Auxs->Ciclo==0){
+				if(Auxs->Ciclo==0){//si ya acabo el proceso
 					Auxs->Edo=5;
 				}
-				devolucion();
-				Auxs=Auxs->sig;
-				if(Auxs==NULL){
-					confirm=0;
+				devolucion();//regresa a PCB
+				Auxs=Auxs->sig;//itera al siguiente elemento en semaforo
+				if(Auxs==NULL){//si ya no hay nada
+					confirm=0;//confirm a 0, apaga el semaforo
 				}
-			}else if(Auxs->DuracionSC>=1){
+			}else /*if(Auxs->DuracionSC>=1)*/{
 				Auxs->Ciclo--;
 				Auxs->CicloSC++;
 				Auxs->DuracionSC--;
@@ -508,13 +519,13 @@ void devolucion(void){
 
 void manejadorInter(void){
 	if(Auxc->VectorInt<32){
-		system("cls");	
 		printf("------------------------------------------------------------------------\n");
 		printf("|\t\tEl programa genero una interrupcion\n|\tDescripcion: %s\n",TablaVecInt[Auxc->VectorInt]);
 		printf("------------------------------------------------------------------------\n\n");
 		printf("Aceptar -> <enter>\n\n");
 		Auxc->masc=2;
-		system("pause");	
+		system("pause");
+		system("cls");		
 	}
 	else if(Auxc->TipoP!=0){
 		semaforo();
