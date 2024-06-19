@@ -239,7 +239,10 @@ void Bloc_de_Cont(void){
 				Pc->Mem=10+rand()%111;
 				Pc->TipoP=0+rand()%3;
 				Pc->CicloSC=0;
-				Pc->IniSC=rand()%Pc->Ciclo+0;
+				//Asignando codigo de interrupcion y haciendo que no tenga nada en inicio de sc ni en duracion sc
+				(Pc->TipoP == 0)?Pc->VectorInt=InterrSel[0+rand()%5]:Pc->VectorInt=InterrSel[0+rand()%10];
+				(Pc->VectorInt<32)?Pc->IniSC=0:Pc->IniSC=1+rand()%Pc->Ciclo;
+				////////////
 				if(Pc->IniSC==0){
 					Pc->DuracionSC=0;
 				}else if(Pc->IniSC==Pc->Ciclo){
@@ -250,11 +253,6 @@ void Bloc_de_Cont(void){
 					Pc->DuracionSC=1+rand()%3;
 				}
 				Pc->masc=0;
-				if(Pc->TipoP == 0){
-		            Pc->VectorInt=InterrSel[0+rand()%5];
-		        } else{
-		        	Pc->VectorInt=InterrSel[0+rand()%10];
-		        }
 				ContadorGlobal++;
 				Pc->sig=NULL;
 				Qc=Pc;
@@ -268,7 +266,10 @@ void Bloc_de_Cont(void){
 				Nuevoc->Mem=10+rand()%111;
 				Nuevoc->TipoP=0+rand()%3;
 				Nuevoc->CicloSC=0;
-				Nuevoc->IniSC=rand()%Nuevoc->Ciclo+0;
+				//Asignando codigo de interrupcion y haciendo que no tenga nada en inicio de sc ni en duracion sc
+				(Nuevoc->TipoP == 0)?Nuevoc->VectorInt=InterrSel[0+rand()%5]:Nuevoc->VectorInt=InterrSel[0+rand()%10];
+				(Nuevoc->VectorInt<32)?Nuevoc->IniSC=0:Nuevoc->IniSC=1+rand()%Nuevoc->Ciclo;
+				////////////
 				if(Nuevoc->IniSC==0){
 					Nuevoc->DuracionSC=0;
 				}else if(Nuevoc->IniSC==Nuevoc->Ciclo){
@@ -279,11 +280,6 @@ void Bloc_de_Cont(void){
 					Nuevoc->DuracionSC=1+rand()%3;
 				}
 				Nuevoc->masc=0;
-				if(Nuevoc->TipoP == 0){
-		            Nuevoc->VectorInt=InterrSel[0+rand()%5];
-		        } else{
-		        	Nuevoc->VectorInt=InterrSel[0+rand()%10];
-		        }
 				ContadorGlobal++;
 				Nuevoc->sig=NULL;
 				Qc->sig=Nuevoc;
@@ -299,7 +295,7 @@ void Bloc_de_Cont(void){
 int confirm=0;
 
 
-void Ver_Bloc_de_Cont(void){
+void Ver_Bloc_de_Cont(bool ImpSem){
 	system("cls");
     printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
     ImpresionPCB=Pc;	char Tipo[20];
@@ -324,6 +320,7 @@ void Ver_Bloc_de_Cont(void){
     }
     printf("\n-----------------------------------------------------------------------------------------------------------------------------------\n");	
 	cout<<"\n";
+	if(ImpSem)
 	Ver_Bloc_de_Cont_sem();
 }
 void Ver_Bloc_de_Cont_sem(void){
@@ -400,7 +397,7 @@ void Bloc_de_Cont_sem(void){
    
 void RR(void){
 	int contadorsem=0;
-	int a;
+	int quantum;
 	cout<<"\n\n";
 	Auxc=Pc;
 	do{
@@ -413,9 +410,9 @@ void RR(void){
 		if(Auxc->Edo!=5){
 			Auxc->Edo=3;
 		}
-		a=Quan;
+		quantum=Quan;
 		Ver_Bloc_de_Cont();	//Mostrar tablas
-		while(Auxc->Ciclo>0 && a>0 && Auxc->masc==0){
+		while(Auxc->Ciclo>0 && quantum>0 && Auxc->masc==0){
 			manejadorInter();
 			Auxc->CicloSC++;
 			Auxc->Ciclo--;
@@ -426,10 +423,10 @@ void RR(void){
 				Auxc->masc=1;
 				Auxc->DuracionSC--;
 				Bloc_de_Cont_sem();
-				a=0;
-			}	
+				quantum=0;
+			}
 			Ver_Bloc_de_Cont();	//Mostrar tablas
-			a--;
+			quantum--;
 		}
 		if(Auxc->Ciclo>0 && Auxc->masc==0){
 			Auxc->Edo=4;
@@ -510,7 +507,7 @@ void devolucion(void){
 }
 
 void manejadorInter(void){
-	if(Auxc->TipoP==0){
+	if(Auxc->VectorInt<32){
 		system("cls");	
 		printf("------------------------------------------------------------------------\n");
 		printf("|\t\tEl programa genero una interrupcion\n|\tDescripcion: %s\n",TablaVecInt[Auxc->VectorInt]);
@@ -519,7 +516,7 @@ void manejadorInter(void){
 		Auxc->masc=2;
 		system("pause");	
 	}
-	else{
+	else if(Auxc->TipoP!=0){
 		semaforo();
 	}
 }
