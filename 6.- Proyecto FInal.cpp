@@ -46,7 +46,7 @@ nodo_TT *Pt, *Qt, *Nuevot, *Auxt;
 nodo_MPT *Pp, *Qp, *Nuevop, *Auxp;
 nodo_BdC *Pc, *Qc, *Nuevoc, *Auxc, *Pivotec, *ImpresionPCB;
 nodo_sem *Ps, *Qs, *Nuevos, *Auxs, *Pivotes, *ImpresionSem;
-bool sem=1;
+bool VarSemaforo=true;
 
 const char* TablaVecInt[] = {
         "Error de División",                      // 0
@@ -330,7 +330,7 @@ void Ver_Bloc_de_Cont_sem(void){
 	//lamada wait signal, sem, sc
     printf("\n-----(PCB) Semaforo-----");
     ImpresionSem=Ps;	char Tipo[20];
-    printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",sem);
+    printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",VarSemaforo);
     printf("\n--------------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%0s|%s%2s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
 	"Ciclos","","Estados","","Memoria","","CPU o E/s","","Ciclos SC","","Inicio inter","","DuracionSC","","Wait(S)","","Signal(S)","");
@@ -418,6 +418,7 @@ void RR(void){
 			Auxc->Edo=3;
 		}
 		quantum=Quan;
+		manejadorInter();//CAMBIO
 		(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 		while(Auxc->Ciclo>0 && quantum>0 && Auxc->masc==0){//ciclos de ejecucion RR
 			manejadorInter();//Entra a SC si confirm=1
@@ -479,9 +480,9 @@ void semaforo(void){
 		}while(Auxs->masc==0);
 		if(Auxs->masc==1){//si la mascara es 1 (si le corresponde semaforo aun)
 			if(Auxs->DuracionSC==0){//si ya acabo sus ciclos de SC en el semaforo 
+				VarSemaforo=true;
 				Auxs->Wsem=0;
 				Auxs->Ssig=1;
-				sem=1;
 				Ver_Bloc_de_Cont(1);	//Mostrar la tablas
 				Auxs->masc=0;
 				if(Auxs->Ciclo==0){//si ya acabo el proceso
@@ -493,10 +494,10 @@ void semaforo(void){
 					confirm=0;//confirm a 0, apaga el semaforo
 				}
 			}else /*if(Auxs->DuracionSC>=1)*/{
+				VarSemaforo=false;
 				Auxs->Ciclo--;
 				Auxs->CicloSC++;
 				Auxs->DuracionSC--;
-				sem=0;
 			}
 		}
 	}
@@ -519,6 +520,8 @@ void devolucion(void){
 
 void manejadorInter(void){
 	if(Auxc->VectorInt<32){
+		Auxc->Edo=3;
+		(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 		printf("------------------------------------------------------------------------\n");
 		printf("|\t\tEl programa genero una interrupcion\n|\tDescripcion: %s\n",TablaVecInt[Auxc->VectorInt]);
 		printf("------------------------------------------------------------------------\n\n");
