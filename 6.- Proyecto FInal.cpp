@@ -414,7 +414,6 @@ void RR(void){
 				confirm=1;
 				Auxc->Edo=4;
 				Auxc->masc=1;
-				Auxc->DuracionSC--;
 				Bloc_de_Cont_sem();
 				quantum=0;
 			}
