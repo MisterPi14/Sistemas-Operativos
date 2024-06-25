@@ -240,16 +240,15 @@ void Bloc_de_Cont(void){
 				Pc->CicloSC=0;
 				//Asignando codigo de interrupcion y haciendo que no tenga nada en inicio de sc ni en duracion sc
 				(Pc->TipoP == 0)?Pc->VectorInt=InterrSel[0+rand()%5]:Pc->VectorInt=InterrSel[0+rand()%10];
-				(Pc->VectorInt<32)?Pc->IniSC=0:Pc->IniSC=1+rand()%Pc->Ciclo;
+				(Pc->VectorInt<32)?Pc->IniSC=0:Pc->IniSC=1+rand()%Pc->Ciclo-1;
 				////////////
 				if(Pc->IniSC==0){
 					Pc->DuracionSC=0;
-				}else if(Pc->IniSC==Pc->Ciclo){
+				}
+				else if(Pc->Ciclo==Pc->IniSC+1){//si solo queda un ciclo
 					Pc->DuracionSC=1;
-				}else if(Pc->IniSC==Pc->Ciclo-1){
-					Pc->DuracionSC=1+rand()%2;
 				}else{
-					Pc->DuracionSC=1+rand()%3;
+					Pc->DuracionSC=1+rand()%(Pc->Ciclo-Pc->IniSC);
 				}
 				Pc->masc=0;
 				ContadorGlobal++;
@@ -267,16 +266,15 @@ void Bloc_de_Cont(void){
 				Nuevoc->CicloSC=0;
 				//Asignando codigo de interrupcion y haciendo que no tenga nada en inicio de sc ni en duracion sc
 				(Nuevoc->TipoP == 0)?Nuevoc->VectorInt=InterrSel[0+rand()%5]:Nuevoc->VectorInt=InterrSel[0+rand()%10];
-				(Nuevoc->VectorInt<32)?Nuevoc->IniSC=0:Nuevoc->IniSC=1+rand()%Nuevoc->Ciclo;
-				////////////
+				(Nuevoc->VectorInt<32)?Nuevoc->IniSC=0:Nuevoc->IniSC=1+rand()%Nuevoc->Ciclo-1;
+				////////////////////////
 				if(Nuevoc->IniSC==0){
 					Nuevoc->DuracionSC=0;
-				}else if(Nuevoc->IniSC==Nuevoc->Ciclo){
+				}
+				else if(Nuevoc->Ciclo==Nuevoc->IniSC+1){//si solo queda un ciclo
 					Nuevoc->DuracionSC=1;
-				}else if(Nuevoc->IniSC==Nuevoc->Ciclo-1){
-					Nuevoc->DuracionSC=rand()%2+1;
 				}else{
-					Nuevoc->DuracionSC=1+rand()%3;
+					Nuevoc->DuracionSC=1+rand()%(Nuevoc->Ciclo-Nuevoc->IniSC);
 				}
 				Nuevoc->masc=0;
 				ContadorGlobal++;
