@@ -9,7 +9,6 @@
 #define LinCod 100
 #define Arr 8
 #define Quan 5
-using namespace std;
 void crear_TT(void);
 void crear_MPT(void);
 void ver_MPT(void);
@@ -198,7 +197,7 @@ void crear_MPT(void){
 		contador=0;
 		Auxt=Auxt->sig;
 	}	
-	cout<<"\nTABLAS DE MAPA DE PAGINAS\n";
+	printf("\nTABLAS DE MAPA DE PAGINAS\n");
 }
 
 void ver_MPT(void){
@@ -206,19 +205,19 @@ void ver_MPT(void){
 	Auxt=Pt;
 	Auxp=Pp;
 	for(int i=1;i<=NT;i++){
-		cout<<"Tarea ["<<Auxt->NoTarea<<"]\n";
+		printf("Tarea [%d]\n",Auxt->NoTarea);
 		for(int j=0;j<Auxt->totalP;j++){
-			cout<<"J"<<Auxp->NoT<<"P"<<Auxp->NoPag<<" |   ";
-			cout<<Auxp->Celex<<"\n";
+         printf("J%dP%d",Auxp->NoT,Auxp->NoPag);
+         printf("%d\n",Auxp->Celex);
 			if(j==(Auxt->totalP)-1){
-				cout<<"Numero de Selecciones: "<<Auxp->ContS<<"\n\n";
+				printf("Numero de Selecciones: %d\n\n",Auxp->ContS);
 			}
 			total=total+Auxp->ContS;
 			Auxp=Auxp->sig;
 		}
-		Auxt=Auxt->sig;		
+		Auxt=Auxt->sig;
 	}
-	cout<<"Total = "<<total<<"\n";
+	printf("Total = %d\n",total);
 	system("pause");
 }
 
@@ -297,28 +296,21 @@ void Ver_Bloc_de_Cont(bool ImpSem){
 	//PONER: proceso, tllegada, ciclos, estado, tipo de proceso (cpu o e/s), ciclosc, inicio sc, codigo interr, duracion sc
 	system("cls");
     printf("\n-----(PCB) BLOQUE DE CONTROL DE PROCESOS-----");
-    ImpresionPCB=Pc;	char Tipo[20];
+    ImpresionPCB=Pc;
     printf("\n-----------------------------------------------------------------------------------------------------------------------------------");
     printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%0s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
 	"Ciclos","","Estados","","Memoria","","CPU o E/s","","Ciclos SC","","Inicio inter","","DuracionSC","","Cod Interr","");
     printf("-----------------------------------------------------------------------------------------------------------------------------------");
     while(ImpresionPCB != NULL){
     	if(ImpresionPCB->masc==0){
-	    	if(ImpresionPCB->TipoP == 0){
-	            snprintf(Tipo, sizeof(Tipo), "CPU");
-	        } else if(ImpresionPCB->TipoP == 1){
-	            snprintf(Tipo, sizeof(Tipo), "E");
-	        } else if(ImpresionPCB->TipoP == 2){
-	            snprintf(Tipo, sizeof(Tipo), "S");
-	        }
 	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6d%6s|%6d%6s|%6d%6s|%6d%6s|","",ImpresionPCB->ProcJ,
 			ImpresionPCB->ProcP,(ImpresionPCB->ProcP>=10||ImpresionPCB->ProcJ>=10)?"  ":"   ",ImpresionPCB->Tiempo,"",ImpresionPCB->Ciclo,"",
-			ImpresionPCB->Edo,"",ImpresionPCB->Mem,"",Tipo,"",ImpresionPCB->CicloSC,"",ImpresionPCB->IniSC,"",ImpresionPCB->DuracionSC,"",ImpresionPCB->VectorInt,"");
+			ImpresionPCB->Edo,"",ImpresionPCB->Mem,"",(ImpresionPCB->TipoP == 0) ? "CPU" : (ImpresionPCB->TipoP == 1) ? "E" : "S","",ImpresionPCB->CicloSC,"",ImpresionPCB->IniSC,"",ImpresionPCB->DuracionSC,"",ImpresionPCB->VectorInt,"");
 		}
 		ImpresionPCB=ImpresionPCB->sig;
     }
     printf("\n-----------------------------------------------------------------------------------------------------------------------------------\n");	
-	cout<<"\n";
+	printf("\n");
 	if(ImpSem==true){
 		Ver_Bloc_de_Cont_sem();
 	}
@@ -329,7 +321,7 @@ void Ver_Bloc_de_Cont(bool ImpSem){
 void Ver_Bloc_de_Cont_sem(void){
 	//lamada wait signal, sem, sc
     printf("\n-----(PCB) Semaforo-----");
-    ImpresionSem=Ps;	char Tipo[20];
+    ImpresionSem=Ps;
     printf("\n\t\t\t\t\t\t\t\t\tSemaforo: %d",VarSemaforo);
     printf("\n--------------------------------------------------------------------------------------------------------------------------------------------");
     printf("\n|%s%3s|%s%3s|%s%6s|%s%5s|%s%5s|%s%5s|%s%3s|%s%0s|%s%2s|%s%2s|%s%2s|\n","Proceso","","T-Llegada","",
@@ -337,22 +329,15 @@ void Ver_Bloc_de_Cont_sem(void){
     printf("--------------------------------------------------------------------------------------------------------------------------------------------");
     while(ImpresionSem != NULL){
     	if(ImpresionSem->masc==1){
-	    	if(ImpresionSem->TipoP == 0){
-	            snprintf(Tipo, sizeof(Tipo), "CPU");
-	        } else if(ImpresionSem->TipoP == 1){
-	            snprintf(Tipo, sizeof(Tipo), "E");
-	        } else if(ImpresionSem->TipoP == 2){
-	            snprintf(Tipo, sizeof(Tipo), "S");
-	        }
 	        printf("\n|%3sJ%dP%d%s|%6d%6s|%6d%6s|%6d%6s|%6d%4sKB|%6s%8s|%6d%6s|%6d%6s|%6d%6s|%6d%3s|%6d%5s|","",ImpresionSem->ProcJ,
 			ImpresionSem->ProcP,(ImpresionSem->ProcP>=10||ImpresionSem->ProcJ>=10)?"  ":"   ",ImpresionSem->Tiempo,"",ImpresionSem->Ciclo,"",
-			ImpresionSem->Edo,"",ImpresionSem->Mem,"",Tipo,"",ImpresionSem->CicloSC,"",ImpresionSem->IniSC,"",
+			ImpresionSem->Edo,"",ImpresionSem->Mem,"",(ImpresionSem->TipoP == 0) ? "CPU" : (ImpresionSem->TipoP == 1) ? "E" : "S","",ImpresionSem->CicloSC,"",ImpresionSem->IniSC,"",
 			ImpresionSem->DuracionSC,"",ImpresionSem->Wsem,"",ImpresionSem->Ssig,"");
 		}
 		ImpresionSem=ImpresionSem->sig;
     }
     printf("\n--------------------------------------------------------------------------------------------------------------------------------------------\n");	
-	cout<<"\n";	
+	printf("\n");
 	system("pause");
 }
 
@@ -396,7 +381,7 @@ void Bloc_de_Cont_sem(void){
 			Qs->sig=Nuevos;
 			Qs=Nuevos;	
 		}
-	} 
+	}
 }  
 
 int confirm=0;
@@ -404,7 +389,7 @@ int confirm=0;
 void RR(void){
 	int contadorsem=0;
 	int quantum;
-	cout<<"\n\n";
+	printf("\n\n");
 	Auxc=Pc;
 	Ver_Bloc_de_Cont(0);
 	do{
