@@ -244,11 +244,12 @@ void Bloc_de_Cont(void){
 				////////////
 				if(Pc->IniSC==0){
 					Pc->DuracionSC=0;
-				}
-				else if(Pc->IniSC==Pc->Ciclo-1){//si solo queda un ciclo
+				}else if(Pc->IniSC==Pc->Ciclo-1){
 					Pc->DuracionSC=1;
+				}else if(Pc->IniSC==Pc->Ciclo-2){
+					Pc->DuracionSC=1+rand()%2;
 				}else{
-					Pc->DuracionSC=1+rand()%(Pc->Ciclo-Pc->IniSC);
+					Pc->DuracionSC=1+rand()%3;
 				}
 				Pc->masc=0;
 				ContadorGlobal++;
@@ -270,11 +271,12 @@ void Bloc_de_Cont(void){
 				////////////////////////
 				if(Nuevoc->IniSC==0){
 					Nuevoc->DuracionSC=0;
-				}
-				else if(Nuevoc->Ciclo==Nuevoc->IniSC+1){//si solo queda un ciclo
+				}else if(Nuevoc->IniSC==Nuevoc->Ciclo-1){
 					Nuevoc->DuracionSC=1;
+				}else if(Nuevoc->IniSC==Nuevoc->Ciclo-2){
+					Nuevoc->DuracionSC=1+rand()%2;
 				}else{
-					Nuevoc->DuracionSC=1+rand()%(Nuevoc->Ciclo-Nuevoc->IniSC);
+					Nuevoc->DuracionSC=1+rand()%3;
 				}
 				Nuevoc->masc=0;
 				ContadorGlobal++;
