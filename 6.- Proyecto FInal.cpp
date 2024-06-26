@@ -245,7 +245,7 @@ void Bloc_de_Cont(void){
 				if(Pc->IniSC==0){
 					Pc->DuracionSC=0;
 				}
-				else if(Pc->Ciclo==Pc->IniSC+1){//si solo queda un ciclo
+				else if(Pc->IniSC==Pc->Ciclo-1){//si solo queda un ciclo
 					Pc->DuracionSC=1;
 				}else{
 					Pc->DuracionSC=1+rand()%(Pc->Ciclo-Pc->IniSC);
@@ -403,7 +403,7 @@ void RR(void){
 		quantum=Quan;
 		manejadorInter();//CAMBIO
 		(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
-		while(Auxc->Ciclo>0 && quantum>0 && Auxc->masc==0){//ciclos de ejecucion RR
+		while(Auxc->Ciclo>0 && quantum>0 && Auxc->masc==0 && Auxc->Edo!=5){//ciclos de ejecucion RR
 			manejadorInter();//Entra a SC si confirm=1
 			Auxc->CicloSC++;
 			Auxc->Ciclo--;
@@ -420,12 +420,12 @@ void RR(void){
 		}
 		if(Auxc->Ciclo>0 && Auxc->masc==0){//se para un proceso se acabo el quantum pero no entro en SC
 			Auxc->Edo=4;
-			Ver_Bloc_de_Cont(0);	//Mostrar tablas
+			(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 		}
 		if(Auxc->Ciclo==0){//si acabo de ejecutarse un proceso
 			if(Auxc->Edo!=5){//actualizar el estado a 5 si aun no esta
 				Auxc->Edo=5;
-				Ver_Bloc_de_Cont(0);	//Mostrar tablas
+				(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 			}
 			//Pivotec=Auxc;
 			//Auxc=Pc;
@@ -465,7 +465,7 @@ void semaforo(void){
 				VarSemaforo=true;
 				Auxs->Wsem=0;
 				Auxs->Ssig=1;
-				Ver_Bloc_de_Cont(1);	//Mostrar la tablas
+				(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 				Auxs->masc=0;
 				if(Auxs->Ciclo==0){//si ya acabo el proceso
 					Auxs->Edo=5;
@@ -501,7 +501,7 @@ void devolucion(void){
 }
 
 void manejadorInter(void){
-	if(Auxc->VectorInt<32){
+	if(Auxc->VectorInt<32 && Auxc->masc!=2){
 		Auxc->Edo=3;
 		(confirm==1)?Ver_Bloc_de_Cont(1):Ver_Bloc_de_Cont(0);//Mostrar tablas
 		printf("------------------------------------------------------------------------\n");
@@ -509,6 +509,8 @@ void manejadorInter(void){
 		printf("------------------------------------------------------------------------\n\n");
 		printf("Aceptar -> <enter>\n\n");
 		Auxc->masc=2;
+		Auxc->Edo=5;
+		ContadorGlobal--;
 		system("pause");
 		system("cls");		
 	}
